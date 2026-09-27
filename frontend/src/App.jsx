@@ -47,6 +47,7 @@ function App() {
 
   const fetchUser = async () => {
     try {
+      const isOAuthCallback = new URLSearchParams(window.location.search).get('authenticated') === '1';
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/me`, {
         credentials: 'include'
       });
@@ -65,6 +66,12 @@ function App() {
           avatarUrl: customAvatar || data.user.avatarUrl
         };
         setUser(effectiveUser);
+        if (isOAuthCallback) {
+          setInitialDashboardTab('Dashboard');
+          persistView('dashboard');
+          handleTabChange('Home');
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
         return effectiveUser;
       } else {
         setIsLoggedIn(false);
