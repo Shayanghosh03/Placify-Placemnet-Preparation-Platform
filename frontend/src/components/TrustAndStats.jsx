@@ -45,7 +45,7 @@ const InfosysLogo = () => (
   </div>
 );
 
-export default function TrustAndStats() {
+export default function TrustAndStats({ onSelectStat }) {
   return (
     <>
       <div className="trust-stats-wrapper">
@@ -67,25 +67,25 @@ export default function TrustAndStats() {
 
         {/* Right Side: Stats Numbers */}
         <div className="stats-grid-side">
-          <div className="stat-box">
+          <button type="button" className="stat-box" onClick={() => onSelectStat?.('Dashboard')}>
             <span className="stat-number">10K+</span>
             <span className="stat-label">Active Learners</span>
-          </div>
+          </button>
 
-          <div className="stat-box">
+          <button type="button" className="stat-box" onClick={() => onSelectStat?.('Practice')}>
             <span className="stat-number">500+</span>
             <span className="stat-label">Practice Questions</span>
-          </div>
+          </button>
 
-          <div className="stat-box">
+          <button type="button" className="stat-box" onClick={() => onSelectStat?.('Notes')}>
             <span className="stat-number">100+</span>
             <span className="stat-label">Handwritten Notes</span>
-          </div>
+          </button>
 
-          <div className="stat-box">
+          <button type="button" className="stat-box" onClick={() => onSelectStat?.('Mock Tests')}>
             <span className="stat-number">50+</span>
             <span className="stat-label">Mock Tests</span>
-          </div>
+          </button>
         </div>
       </div>
 

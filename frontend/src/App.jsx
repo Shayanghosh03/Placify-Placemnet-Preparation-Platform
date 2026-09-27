@@ -175,8 +175,15 @@ function App() {
     );
   }
 
-  const handleStartLearning = () => {
-    setAuthModalType('register');
+  const handleProtectedAction = (tab = 'Dashboard') => {
+    if (!isLoggedIn) {
+      setAuthModalType('register');
+      return;
+    }
+
+    setInitialDashboardTab(tab);
+    persistView('dashboard');
+    handleTabChange('Home');
   };
 
   return (
@@ -199,7 +206,7 @@ function App() {
             {/* Hero Section */}
             <Hero
               onOpenDemoModal={() => setShowDemoModal(true)}
-              onStartLearning={handleStartLearning}
+              onStartLearning={() => handleProtectedAction('Dashboard')}
             />
 
             {/* 4 Main Pastel Category Cards (Aptitude, Reasoning, Verbal, DSA) */}
@@ -209,11 +216,11 @@ function App() {
 
             {/* 4 Compact Feature Items */}
             <FeatureBar
-              onSelectFeature={(feat) => setSelectedFeature(feat)}
+              onSelectFeature={(feat) => handleProtectedAction(feat.id === 'notes' ? 'Notes' : feat.id === 'mock' ? 'Mock Tests' : 'Dashboard')}
             />
 
             {/* Trust Bar & Stats Counter */}
-            <TrustAndStats />
+            <TrustAndStats onSelectStat={handleProtectedAction} />
           </>
         )}
 
@@ -252,7 +259,9 @@ function App() {
             <p style={{ color: '#64748b', marginBottom: 32 }}>
               Download PDF notes for Aptitude formulas, Logical reasoning tricks, and Verbal grammar rules.
             </p>
-            <FeatureBar onSelectFeature={(feat) => setSelectedFeature(feat)} />
+            <FeatureBar
+              onSelectFeature={(feat) => handleProtectedAction(feat.id === 'notes' ? 'Notes' : feat.id === 'mock' ? 'Mock Tests' : 'Dashboard')}
+            />
           </div>
         )}
 
@@ -265,7 +274,7 @@ function App() {
             <p style={{ color: '#64748b', marginBottom: 32 }}>
               Company-specific mock exams for TCS NQT, Infosys, Wipro, Accenture, Cognizant & Tech giants.
             </p>
-            <TrustAndStats />
+            <TrustAndStats onSelectStat={handleProtectedAction} />
           </div>
         )}
 
@@ -411,6 +420,7 @@ function App() {
         selectedFeature={selectedFeature}
         setSelectedFeature={setSelectedFeature}
         onLoginSuccess={handleLoginSuccess}
+        onProtectedAction={handleProtectedAction}
       />
     </div>
   );
@@ -942,8 +952,6 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
   const [showDailyGoals, setShowDailyGoals] = useState(false);
   const [practiceQuery, setPracticeQuery] = useState('');
   const [practiceFilter, setPracticeFilter] = useState('All');
-  const [solvingTopicId, setSolvingTopicId] = useState(null);
-  const [realtimeNotification, setRealtimeNotification] = useState(null);
   const pageMeta = {
     Practice: ['DAILY PRACTICE', 'Practice with purpose.', 'Short, focused sessions that turn weak areas into strengths.'],
     DSA: ['DSA ROADMAP', 'Build problem-solving confidence.', 'Follow patterns, solve consistently, and become interview-ready one topic at a time.'],
@@ -964,22 +972,6 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
       window.localStorage.setItem('placify-dashboard-tab', tab);
     } catch {
       // ignore
-    }
-  };
-
-  const handleQuickSolve = async (topicId, topicTitle) => {
-    if (!topicId || solvingTopicId) return;
-    setSolvingTopicId(topicId);
-    try {
-      await actions.solveTopic(topicId, 1);
-      setRealtimeNotification(`+1 problem solved in ${topicTitle}! Live progress updated.`);
-      setTimeout(() => {
-        setRealtimeNotification((curr) => (curr?.includes(topicTitle) ? null : curr));
-      }, 3500);
-    } catch (err) {
-      console.error('Quick solve failed:', err);
-    } finally {
-      setSolvingTopicId(null);
     }
   };
 
@@ -1241,13 +1233,6 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
                 </button>
               </div>
 
-              {realtimeNotification && (
-                <div className="realtime-progress-banner" role="status" aria-live="polite">
-                  <Zap size={16} />
-                  <span>{realtimeNotification}</span>
-                </div>
-              )}
-
               <div className="dashboard-learning-grid">
                 {continueTopics.map((item) => {
                   const total = item.total || 20;
@@ -1256,8 +1241,6 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
                   const meta = TOPIC_METADATA[item.topicId] || CATEGORY_FALLBACK[item.category] || { color: '#635bff', icon: Zap, tab: 'Practice' };
                   const Icon = meta.icon;
                   const isCompleted = item.completed || (total > 0 && solved >= total);
-                  const isSolving = solvingTopicId === item.topicId;
-
                   return (
                     <article className="dashboard-learning-card" key={item.topicId || item.title}>
                       <div className="dashboard-card-top-row">
@@ -1289,21 +1272,6 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
                           title={`Continue learning ${item.title}`}
                         >
                           Continue <ArrowRight size={13} />
-                        </button>
-                        <button
-                          type="button"
-                          className="dashboard-quick-btn"
-                          onClick={() => handleQuickSolve(item.topicId, item.title)}
-                          disabled={isSolving || isCompleted}
-                          title={isCompleted ? 'Topic completed!' : 'Quick solve 1 problem (+1)'}
-                        >
-                          {isSolving ? (
-                            <span className="btn-spinner" />
-                          ) : isCompleted ? (
-                            <CheckCircle2 size={13} />
-                          ) : (
-                            <>+1 Solved <Zap size={12} /></>
-                          )}
                         </button>
                       </div>
                     </article>

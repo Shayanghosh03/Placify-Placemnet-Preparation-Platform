@@ -125,7 +125,8 @@ export default function Modals({
   setSelectedCategory,
   selectedFeature,
   setSelectedFeature,
-  onLoginSuccess
+  onLoginSuccess,
+  onProtectedAction
 }) {
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
@@ -515,7 +516,7 @@ export default function Modals({
                 style={{ flex: 1 }}
                 onClick={() => {
                   setSelectedCategory(null);
-                  setAuthModalType('register');
+                  onProtectedAction('Dashboard');
                 }}
               >
                 Start Learning Now
@@ -590,7 +591,7 @@ export default function Modals({
               style={{ width: '100%' }}
               onClick={() => {
                 setSelectedFeature(null);
-                setAuthModalType('register');
+                onProtectedAction(selectedFeature.id === 'notes' ? 'Notes' : selectedFeature.id === 'mock' ? 'Mock Tests' : 'Dashboard');
               }}
             >
               Access {selectedFeature.title}

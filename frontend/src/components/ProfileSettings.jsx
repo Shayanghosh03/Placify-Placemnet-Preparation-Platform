@@ -14,7 +14,6 @@ import {
   Sparkles,
   ShieldCheck,
   RefreshCw,
-  Image as ImageIcon,
   Camera,
   Upload,
   HardDrive,
@@ -77,7 +76,6 @@ export default function ProfileSettings({ user, onUpdateUser, onBack }) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [showAvatarDrawer, setShowAvatarDrawer] = useState(false);
   const [hasLocalStorageAvatar, setHasLocalStorageAvatar] = useState(false);
   const [uploadNotice, setUploadNotice] = useState('');
 
@@ -321,15 +319,6 @@ export default function ProfileSettings({ user, onUpdateUser, onBack }) {
                 <span>Upload Photo (Local Storage)</span>
               </button>
 
-              <button
-                type="button"
-                className="profile-quick-action-btn"
-                onClick={() => setShowAvatarDrawer(!showAvatarDrawer)}
-              >
-                <ImageIcon size={14} />
-                <span>{showAvatarDrawer ? 'Hide URL' : 'Image URL'}</span>
-              </button>
-
               {hasLocalStorageAvatar && (
                 <button
                   type="button"
@@ -353,40 +342,6 @@ export default function ProfileSettings({ user, onUpdateUser, onBack }) {
           </div>
         )}
 
-        {/* Image URL Drawer */}
-        {showAvatarDrawer && (
-          <div className="profile-avatar-editor">
-            <label htmlFor="avatarUrl">
-              Or Enter an Image Web Link:
-            </label>
-            <div className="profile-avatar-input-group">
-              <input
-                id="avatarUrl"
-                type="url"
-                name="avatarUrl"
-                placeholder="https://example.com/photo.jpg or Google Photo URL"
-                value={formData.avatarUrl.startsWith('data:image') ? '(Custom Local Storage Photo Selected)' : formData.avatarUrl}
-                onChange={(e) => {
-                  if (e.target.value !== '(Custom Local Storage Photo Selected)') {
-                    handleChange(e);
-                  }
-                }}
-              />
-              <button
-                type="button"
-                className="btn btn-outline-demo"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload size={14} /> Select Local File
-              </button>
-            </div>
-            {isGoogle && (
-              <p className="avatar-hint">
-                <CheckCircle2 size={13} color="#10b981" /> When logging in with Google, your official photo is automatically fetched. You can override it here anytime using a local image!
-              </p>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Notifications */}
