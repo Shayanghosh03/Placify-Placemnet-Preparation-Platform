@@ -3030,8 +3030,14 @@ p {
     gap: 14px;
     padding-right: 52px;
   }
+  .dashboard-profile-menu-wrap {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+  }
   .dashboard-profile-menu {
-    right: -2px;
+    right: 0;
     width: min(220px, calc(100vw - 32px));
   }
   .dashboard-topbar-heading {
@@ -3041,9 +3047,7 @@ p {
     font-size: 1.55rem;
   }
   .dashboard-avatar-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: relative;
     z-index: 2;
   }
   .dashboard-streak-badge {

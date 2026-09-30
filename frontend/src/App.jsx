@@ -990,7 +990,6 @@ function RoadmapPage({ summary, onNavigate }) {
 
   return (
     <section className="workspace-page roadmap-page">
-      <WorkspaceHeader eyebrow="YOUR PLAN" title="Placement roadmap" description="Follow a clear path from fundamentals to interview confidence." action={<span className="roadmap-phase-count">{completedPhases}/{phases.length} phases complete</span>} />
       <div className="roadmap-hero">
         <div className="roadmap-hero-copy">
           <span className="page-eyebrow">KEEP MOVING FORWARD</span>
