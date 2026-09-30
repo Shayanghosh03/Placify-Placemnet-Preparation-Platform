@@ -39,7 +39,6 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [contactSent, setContactSent] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
   const [homeViewOverride, setHomeViewOverride] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem('placify-view') !== 'dashboard';
@@ -92,7 +91,7 @@ function App() {
       setAuthModalType('login');
     }
 
-    fetchUser().finally(() => setAuthChecked(true));
+    fetchUser();
   }, []);
 
   const persistView = (view) => {
@@ -105,10 +104,6 @@ function App() {
     setActiveTab(tab);
     window.localStorage.setItem('placify-active-tab', tab);
   };
-
-  if (!authChecked) {
-    return <div className="auth-loading">Loading Placify...</div>;
-  }
 
   const handleLogout = async () => {
     try {
