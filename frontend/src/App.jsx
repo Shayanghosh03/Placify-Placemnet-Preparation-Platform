@@ -973,9 +973,59 @@ function MockTestsPage({ summary, actions }) {
   );
 }
 
-function RoadmapPage() {
-  const phases = [['1', 'Strengthen fundamentals', 'Complete core aptitude, reasoning, and verbal topics.', true], ['2', 'Build DSA foundations', 'Learn patterns and solve 75 curated problems.', true], ['3', 'Practice company tests', 'Take timed mocks and review every mistake.', false], ['4', 'Prepare for interviews', 'Revise projects, CS fundamentals, and HR questions.', false]];
-  return <section className="workspace-page"><WorkspaceHeader compact action={<button className="btn btn-outline-demo"><RotateCcw size={16} /> Reset roadmap</button>} /><div className="roadmap-progress"><div><strong>42%</strong><span>roadmap complete</span></div><div className="roadmap-track"><i style={{ width: '42%' }} /></div><span>12 weeks left</span></div><div className="roadmap-list">{phases.map(([number, title, description, done]) => <article className={`roadmap-step${done ? ' completed' : ''}`} key={number}><div className="roadmap-number">{done ? <CheckCircle2 size={20} /> : number}</div><div><span className="page-eyebrow">{done ? 'COMPLETED' : `PHASE ${number}`}</span><h3>{title}</h3><p>{description}</p></div><button type="button">{done ? 'Review' : 'Start phase'} <ChevronRight size={15} /></button></article>)}</div></section>;
+function RoadmapPage({ summary }) {
+  const categoryProgress = Object.fromEntries((summary?.categoryProgress || []).map(({ category, percent }) => [category, percent]));
+  const averageFoundation = Math.round(
+    ['Aptitude', 'Reasoning', 'Verbal Ability'].reduce((total, category) => total + (categoryProgress[category] || 0), 0) / 3
+  );
+  const phases = [
+    { number: '1', title: 'Master placement fundamentals', description: 'Build speed and accuracy with aptitude, reasoning, and verbal ability practice.', detail: 'Practice daily', progress: averageFoundation, icon: Target, color: '#2563eb' },
+    { number: '2', title: 'Build DSA problem-solving', description: 'Learn arrays, strings, linked lists, stacks, queues, trees, graphs, and dynamic programming.', detail: 'Solve topic-wise', progress: categoryProgress.DSA || 0, icon: Code2, color: '#db2777' },
+    { number: '3', title: 'Test your readiness', description: 'Take company-specific mock tests, track your time, and review every mistake.', detail: `${summary?.quizzesTaken || 0} tests taken`, progress: Math.min(100, (summary?.quizzesTaken || 0) * 10), icon: Trophy, color: '#f59e0b' },
+    { number: '4', title: 'Prepare for interviews', description: 'Revise projects, core CS concepts, technical questions, and HR answers.', detail: 'Final preparation', progress: 0, icon: Users, color: '#16a34a' }
+  ];
+  const overall = Math.max(0, Math.min(100, Number(summary?.overall) || Math.round(phases.reduce((total, phase) => total + phase.progress, 0) / phases.length)));
+  const completedPhases = phases.filter((phase) => phase.progress >= 100).length;
+
+  return (
+    <section className="workspace-page roadmap-page">
+      <WorkspaceHeader eyebrow="YOUR PLAN" title="Placement roadmap" description="Follow a clear path from fundamentals to interview confidence." action={<span className="roadmap-phase-count">{completedPhases}/{phases.length} phases complete</span>} />
+      <div className="roadmap-hero">
+        <div className="roadmap-hero-copy">
+          <span className="page-eyebrow">KEEP MOVING FORWARD</span>
+          <h2>Your next opportunity starts with today&apos;s progress.</h2>
+          <p>Use this roadmap to balance learning, practice, testing, and interview preparation.</p>
+        </div>
+        <div className="roadmap-overall-score"><strong>{overall}%</strong><span>overall complete</span></div>
+      </div>
+      <div className="roadmap-progress">
+        <div><strong>{overall}%</strong><span>roadmap complete</span></div>
+        <div className="roadmap-track"><i style={{ width: `${overall}%` }} /></div>
+        <span>{overall >= 100 ? 'Placement ready' : `${phases.length - completedPhases} phases remaining`}</span>
+      </div>
+      <div className="roadmap-list">
+        {phases.map((phase) => {
+          const PhaseIcon = phase.icon;
+          const done = phase.progress >= 100;
+          return (
+            <article className={`roadmap-step${done ? ' completed' : ''}`} key={phase.number}>
+              <div className="roadmap-number" style={{ color: phase.color, backgroundColor: `${phase.color}15` }}>{done ? <CheckCircle2 size={20} /> : phase.number}</div>
+              <div className="roadmap-step-icon" style={{ color: phase.color, backgroundColor: `${phase.color}12` }}><PhaseIcon size={19} /></div>
+              <div className="roadmap-step-copy">
+                <span className="page-eyebrow">{done ? 'COMPLETED' : `PHASE ${phase.number}`}</span>
+                <h3>{phase.title}</h3>
+                <p>{phase.description}</p>
+                <div className="roadmap-step-progress"><i style={{ width: `${phase.progress}%`, backgroundColor: phase.color }} /></div>
+                <span className="roadmap-step-meta">{phase.progress}% complete <span>•</span> {phase.detail}</span>
+              </div>
+              <button type="button">{done ? 'Review' : phase.progress > 0 ? 'Continue' : 'Start phase'} <ChevronRight size={15} /></button>
+            </article>
+          );
+        })}
+      </div>
+      <div className="roadmap-tip"><Zap size={18} /><span><strong>Recommended routine:</strong> study one concept, solve five questions, then review your mistakes every day.</span></div>
+    </section>
+  );
 }
 
 function BookmarksPage({ summary, actions }) {
@@ -1533,7 +1583,7 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
                     const secondColorStop = (overall * 0.67).toFixed(2);
                     const ringBackground = overall > 0
                       ? `radial-gradient(circle, #ffffff 57%, transparent 58%), conic-gradient(#3b82f6 0 ${firstColorStop}%, #ef476f ${firstColorStop}% ${secondColorStop}%, #16a34a ${secondColorStop}% ${overall}%, #e8eef8 ${overall}% 100%)`
-                      : 'radial-gradient(circle, #ffffff 57%, transparent 58%), conic-gradient(#e8eef8 0 100%)';
+                      : 'transparent';
                     return (
                       <div
                         className={`dashboard-progress-ring${overall > 0 ? ' active' : ''}`}
