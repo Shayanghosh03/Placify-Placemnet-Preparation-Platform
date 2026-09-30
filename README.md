@@ -23,6 +23,7 @@ The application includes authentication, progress tracking, daily goals, curated
 - DSA roadmap with topic cards for arrays, strings, hashing, linked lists, stacks, queues, trees, graphs, dynamic programming, and more
 - Topic-specific question pages with problem and solution links
 - Notes library with bookmarks
+- Notes resource cards for programming, DSA, aptitude, reasoning, verbal ability, and interview preparation
 - Mock placement tests
 - Learning roadmap and progress analytics
 - Responsive dashboard layout with a fixed, scroll-independent sidebar
@@ -252,3 +253,6 @@ npm run build
 ## License
 
 This project does not currently declare a public open-source license.
+### Adding Google Drive notes
+
+The Notes page is ready to open PDFs hosted on Google Drive. Add each file's share URL to the matching `driveUrl` field in `frontend/src/App.jsx` under `NOTE_RESOURCES`. Before sharing the link, set the Google Drive file access to **Anyone with the link → Viewer**. Cards without a configured URL remain disabled and show a “Drive link coming soon” state.

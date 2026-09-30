@@ -839,6 +839,15 @@ function DsaPage({ summary, actions }) {
   );
 }
 
+const NOTE_RESOURCES = [
+  { itemId: 'note-programming-languages', title: 'Programming Language', category: 'Programming', description: 'Reference notes for core programming languages and concepts.', color: '#635bff', driveUrl: '' },
+  { itemId: 'note-data-structures-algorithms', title: 'Data Structures and Algorithms', category: 'DSA', description: 'DSA concepts, patterns, and interview revision notes.', color: '#2563eb', driveUrl: '' },
+  { itemId: 'note-aptitude', title: 'Aptitude', category: 'Aptitude', description: 'Formulas, shortcuts, and solved placement aptitude notes.', color: '#16a34a', driveUrl: '' },
+  { itemId: 'note-reasoning', title: 'Reasoning', category: 'Reasoning', description: 'Logical reasoning methods, shortcuts, and practice notes.', color: '#f59e0b', driveUrl: '' },
+  { itemId: 'note-verbal-ability', title: 'Verbal Ability', category: 'Verbal Ability', description: 'Grammar, vocabulary, comprehension, and verbal preparation.', color: '#db2777', driveUrl: '' },
+  { itemId: 'note-interview-questions', title: 'Interview Questions', category: 'Interview Preparation', description: 'Frequently asked technical and HR interview questions.', color: '#0891b2', driveUrl: '' }
+];
+
 function NotesPage({ summary, actions }) {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -852,6 +861,10 @@ function NotesPage({ summary, actions }) {
   }, [actions]);
 
   const bookmarkedIds = new Set((summary?.bookmarks || []).map((b) => b.itemId));
+  const resources = NOTE_RESOURCES.map((resource) => {
+    const matchingNote = notes.find((note) => note.category === resource.category || note.title === resource.title);
+    return { ...resource, driveUrl: matchingNote?.pdfUrl || resource.driveUrl };
+  });
 
   return (
     <section className="workspace-page">
@@ -860,23 +873,30 @@ function NotesPage({ summary, actions }) {
         <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading notes…</span></div>
       ) : (
         <div className="notes-layout">
-          <div className="notes-list">
-            {notes.map((note) => (
-              <article className="note-row" key={note.itemId}>
-                <div className="content-icon" style={{ color: note.color, backgroundColor: `${note.color}18` }}><FileText size={20} /></div>
-                <div className="note-copy">
-                  <h3>{note.title}</h3>
-                  <p>{note.category} <span>•</span> {note.pages}</p>
+          <div className="notes-resource-grid">
+            {resources.map((note) => (
+              <article className="notes-resource-card" key={note.itemId}>
+                <div className="notes-resource-top">
+                  <div className="content-icon" style={{ color: note.color, backgroundColor: `${note.color}18` }}><FileText size={21} /></div>
+                  <button
+                    type="button"
+                    className={`icon-button${bookmarkedIds.has(note.itemId) ? ' active' : ''}`}
+                    aria-label={`Bookmark ${note.title}`}
+                    onClick={() => actions.toggleBookmark({ itemId: note.itemId, itemType: 'note', title: note.title, category: note.category, source: 'Google Drive Notes' })}
+                  >
+                    <Bookmark size={18} fill={bookmarkedIds.has(note.itemId) ? 'currentColor' : 'none'} />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className={`icon-button${bookmarkedIds.has(note.itemId) ? ' active' : ''}`}
-                  aria-label={`Bookmark ${note.title}`}
-                  onClick={() => actions.toggleBookmark({ itemId: note.itemId, itemType: 'note', title: note.title, category: note.category, source: 'Notes Library' })}
-                >
-                  <Bookmark size={18} fill={bookmarkedIds.has(note.itemId) ? 'currentColor' : 'none'} />
-                </button>
-                <button type="button" className="note-open">Open <ChevronRight size={15} /></button>
+                <h3>{note.title}</h3>
+                <span className="notes-resource-category">{note.category}</span>
+                <p>{note.description}</p>
+                {note.driveUrl ? (
+                  <a className="note-open" href={note.driveUrl} target="_blank" rel="noreferrer">
+                    Open Drive note <ChevronRight size={15} />
+                  </a>
+                ) : (
+                  <span className="note-open disabled">Drive link coming soon</span>
+                )}
               </article>
             ))}
           </div>
