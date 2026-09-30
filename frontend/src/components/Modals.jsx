@@ -448,7 +448,7 @@ export default function Modals({
               <div style={{ width: '100%', aspectRatio: '16 / 9', borderRadius: '12px', overflow: 'hidden', border: '1px solid #c4b5fd', background: '#f5f3ff' }}>
                 <iframe
                   title="Placify Platform Walkthrough"
-                  src="https://www.youtube.com/embed/aqz-KE-bpKQ"
+                  src="https://www.youtube.com/embed/wcwCcIAE278"
                   style={{ width: '100%', height: '100%', border: 0, display: 'block' }}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen

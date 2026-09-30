@@ -1160,14 +1160,12 @@ function ProgressPage({ summary }) {
   const last7 = [...activityLog].sort((a, b) => a.date.localeCompare(b.date)).slice(-7);
   const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  // Compute topic completion rings
-  const topics = summary?.topics || [];
+  // Use solved-problem totals and category percentages from the live summary.
   const rings = ['Aptitude', 'Reasoning', 'Verbal Ability', 'DSA'].map((cat) => {
-    const catTopics = topics.filter((t) => t.category === cat);
-    const completedCount = catTopics.filter((t) => t.completed).length;
-    const totalCount = catTopics.length;
-    const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-    return [String(completedCount), cat.split(' ')[0], `${pct}%`, colorMap[cat] || '#635bff'];
+    const progress = categoryProgress.find((item) => item.category === cat);
+    const pct = progress?.percent || 0;
+    const solved = progress?.solved || 0;
+    return [String(solved), cat.split(' ')[0], `${pct}%`, colorMap[cat] || '#635bff'];
   });
 
   // Build SVG polyline from activityLog
