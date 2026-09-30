@@ -1962,6 +1962,102 @@ p {
   box-shadow: 0 4px 14px rgba(99, 91, 255, 0.3);
 }
 
+.dashboard-profile-menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dashboard-profile-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 30;
+  width: 220px;
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.14);
+  animation: profile-menu-reveal 0.18s ease-out both;
+}
+
+.dashboard-profile-menu::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 17px;
+  width: 11px;
+  height: 11px;
+  border-top: 1px solid #e2e8f0;
+  border-left: 1px solid #e2e8f0;
+  background: #ffffff;
+  transform: rotate(45deg);
+}
+
+@keyframes profile-menu-reveal {
+  from { opacity: 0; transform: translateY(-5px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dashboard-profile-menu-user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 8px 11px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.dashboard-profile-menu-user > div {
+  min-width: 0;
+}
+
+.dashboard-profile-menu-user strong,
+.dashboard-profile-menu-user span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-profile-menu-user strong {
+  color: #172033;
+  font-size: 0.78rem;
+}
+
+.dashboard-profile-menu-user span {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.dashboard-profile-menu > button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--text-medium);
+  background: transparent;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dashboard-profile-menu > button:hover {
+  color: var(--primary-purple);
+  background: #f5f3ff;
+}
+
+.dashboard-profile-menu > button:last-child:hover {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
 .dashboard-welcome,
 .dashboard-panel {
   max-width: 1040px;

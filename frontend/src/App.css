@@ -599,6 +599,31 @@
     overflow: hidden;
   }
 
+  .dsa-question-page {
+    animation: workspaceReveal 0.3s ease both;
+  }
+
+  .dsa-question-page .dsa-problems-panel {
+    margin-top: 16px;
+  }
+
+  .dsa-back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 0;
+    color: var(--primary-purple);
+    background: transparent;
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .dsa-back-button:hover {
+    color: var(--primary-purple-hover);
+  }
+
   .dsa-close-questions {
     margin: 14px 24px 0;
     border: 0;

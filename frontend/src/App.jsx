@@ -8,7 +8,7 @@ import Modals from './components/Modals';
 import ProfileSettings from './components/ProfileSettings';
 import UserAvatar from './components/UserAvatar';
 import { useDashboard } from './hooks/useDashboard.js';
-import { ArrowRight, ArrowUpRight, BarChart3, BookOpen, Bookmark, CheckCircle2, ChevronRight, CirclePlay, Code2, Download, FileText, Filter, Flame, Home, LayoutDashboard, LogOut, Mail, MapPin, Menu, NotebookTabs, PlayCircle, RotateCcw, Search, Send, Settings, Target, Trophy, Users, X, Zap } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BarChart3, BookOpen, Bookmark, CheckCircle2, ChevronLeft, ChevronRight, CirclePlay, Code2, Download, FileText, Filter, Flame, Home, LayoutDashboard, LogOut, Mail, MapPin, Menu, NotebookTabs, PlayCircle, RotateCcw, Search, Send, Settings, Target, Trophy, Users, X, Zap } from 'lucide-react';
 import './App.css';
 
 const getGreeting = () => {
@@ -652,6 +652,41 @@ function DsaPage({ summary, actions }) {
       {loading ? (
         <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading DSA topics…</span></div>
       ) : (
+        selectedTopic ? (
+          <section className="dsa-question-page">
+            <button type="button" className="dsa-back-button" onClick={() => setSelectedTopic(null)}>
+              <ChevronLeft size={16} /> Back to DSA topics
+            </button>
+            <div className="dsa-problems-panel">
+              <div className="dsa-problems-heading">
+                <div>
+                  <span className="page-eyebrow">CURATED PRACTICE</span>
+                  <h3>{selectedTopic} Questions</h3>
+                  <p>Practice these interview problems, then review a clear solution.</p>
+                </div>
+                <span className="dsa-problem-count">{visibleQuestions.length} problems</span>
+              </div>
+              <div className="dsa-problems-table-wrap">
+                <table className="dsa-problems-table">
+                  <thead><tr><th>Problem</th><th>Difficulty</th><th>Topic</th><th>Links</th></tr></thead>
+                  <tbody>
+                    {visibleQuestions.map(([topic, title, difficulty, slug, solutionSlug]) => (
+                      <tr key={`${topic}-${slug}`}>
+                        <td><strong>{title}</strong></td>
+                        <td><span className={`dsa-difficulty ${difficulty.toLowerCase()}`}>{difficulty}</span></td>
+                        <td>{topic}</td>
+                        <td className="dsa-problem-links">
+                          <a href={`https://leetcode.com/problems/${slug}/`} target="_blank" rel="noreferrer">Problem <ArrowUpRight size={13} /></a>
+                          <a href={`https://neetcode.io/solutions/${solutionSlug}`} target="_blank" rel="noreferrer">Solution <ArrowUpRight size={13} /></a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        ) : (
         <>
           <div className="dsa-topic-card-grid">
             {topicCards.map(([label, questionTopic, progressId, color, description]) => {
@@ -677,36 +712,8 @@ function DsaPage({ summary, actions }) {
               );
             })}
           </div>
-          {selectedTopic && <section className="dsa-problems-panel">
-            <div className="dsa-problems-heading">
-              <div>
-                <span className="page-eyebrow">CURATED PRACTICE</span>
-                <h3>{selectedTopic} Questions</h3>
-                <p>Practice these interview problems, then review a clear solution.</p>
-              </div>
-              <span className="dsa-problem-count">{visibleQuestions.length} problems</span>
-            </div>
-            <button type="button" className="dsa-close-questions" onClick={() => setSelectedTopic(null)}>Close questions</button>
-            <div className="dsa-problems-table-wrap">
-              <table className="dsa-problems-table">
-                <thead><tr><th>Problem</th><th>Difficulty</th><th>Topic</th><th>Links</th></tr></thead>
-                <tbody>
-                  {visibleQuestions.map(([topic, title, difficulty, slug, solutionSlug]) => (
-                    <tr key={`${topic}-${slug}`}>
-                      <td><strong>{title}</strong></td>
-                      <td><span className={`dsa-difficulty ${difficulty.toLowerCase()}`}>{difficulty}</span></td>
-                      <td>{topic}</td>
-                      <td className="dsa-problem-links">
-                        <a href={`https://leetcode.com/problems/${slug}/`} target="_blank" rel="noreferrer">Problem <ArrowUpRight size={13} /></a>
-                        <a href={`https://neetcode.io/solutions/${solutionSlug}`} target="_blank" rel="noreferrer">Solution <ArrowUpRight size={13} /></a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>}
         </>
+        )
       )}
     </section>
   );
@@ -1085,6 +1092,7 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showDailyGoals, setShowDailyGoals] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [practiceQuery, setPracticeQuery] = useState('');
   const [practiceFilter, setPracticeFilter] = useState('All');
   const pageMeta = {
@@ -1146,6 +1154,27 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showDailyGoals]);
+
+  useEffect(() => {
+    if (!showProfileMenu) return undefined;
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') setShowProfileMenu(false);
+    };
+
+    const handlePointerDown = (event) => {
+      if (!event.target.closest('.dashboard-profile-menu-wrap')) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, [showProfileMenu]);
 
   useEffect(() => {
     if (initialTab && initialTab !== 'Dashboard') {
@@ -1297,15 +1326,45 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
               </span>
             </button>
           )}
-          <button
-            type="button"
-            className="dashboard-avatar-btn"
-            onClick={() => handleSelectTab('Profile Settings')}
-            title="Open Profile Settings"
-            aria-label="Open Profile Settings"
-          >
-            <UserAvatar user={user} size="md" showBadge={true} />
-          </button>
+          <div className="dashboard-profile-menu-wrap">
+            <button
+              type="button"
+              className="dashboard-avatar-btn"
+              onClick={() => setShowProfileMenu((visible) => !visible)}
+              title="Open account menu"
+              aria-label="Open account menu"
+              aria-expanded={showProfileMenu}
+              aria-haspopup="menu"
+            >
+              <UserAvatar user={user} size="md" showBadge={true} />
+            </button>
+            {showProfileMenu && (
+              <div className="dashboard-profile-menu" role="menu">
+                <div className="dashboard-profile-menu-user">
+                  <UserAvatar user={user} size="sm" />
+                  <div>
+                    <strong>{user?.name || 'Placify Learner'}</strong>
+                    <span>{user?.email || user?.headline || 'Student account'}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    handleSelectTab('Profile Settings');
+                  }}
+                >
+                  <Settings size={16} />
+                  Settings
+                </button>
+                <button type="button" role="menuitem" onClick={onLogout}>
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </header>
         {dashboardTab === 'Profile Settings' ? (
           <ProfileSettings
