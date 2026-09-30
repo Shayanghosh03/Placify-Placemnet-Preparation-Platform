@@ -506,6 +506,32 @@ const PRACTICE_QUESTIONS = {
   ]
 };
 
+const PRACTICE_TOPIC_FALLBACKS = [
+  ['apt-percentages', 'Percentages', 'Aptitude', 'Easy', 20, '#2563eb'],
+  ['apt-profit-loss', 'Profit & Loss', 'Aptitude', 'Medium', 18, '#f59e0b'],
+  ['apt-time-work', 'Time & Work', 'Aptitude', 'Medium', 15, '#16a34a'],
+  ['apt-ratio-proportion', 'Ratio & Proportion', 'Aptitude', 'Easy', 12, '#0891b2'],
+  ['apt-speed-distance', 'Speed, Distance & Time', 'Aptitude', 'Medium', 14, '#7c3aed'],
+  ['apt-simple-compound-interest', 'Simple & Compound Interest', 'Aptitude', 'Medium', 16, '#dc2626'],
+  ['rsn-blood-relations', 'Blood Relations', 'Reasoning', 'Medium', 15, '#0f766e'],
+  ['rsn-syllogism', 'Syllogism', 'Reasoning', 'Medium', 14, '#635bff'],
+  ['rsn-direction-sense', 'Direction Sense', 'Reasoning', 'Easy', 10, '#ea580c'],
+  ['rsn-coding-decoding', 'Coding & Decoding', 'Reasoning', 'Medium', 12, '#0284c7'],
+  ['rsn-seating-arrangement', 'Seating Arrangement', 'Reasoning', 'Hard', 10, '#9333ea'],
+  ['va-error-spotting', 'Error Spotting', 'Verbal Ability', 'Easy', 12, '#db2777'],
+  ['va-reading-comprehension', 'Reading Comprehension', 'Verbal Ability', 'Hard', 10, '#16a34a'],
+  ['va-sentence-completion', 'Sentence Completion', 'Verbal Ability', 'Medium', 12, '#2563eb'],
+  ['va-synonyms-antonyms', 'Synonyms & Antonyms', 'Verbal Ability', 'Easy', 15, '#f59e0b']
+].map(([itemId, title, category, difficulty, totalProblems, color]) => ({
+  itemId,
+  title,
+  category,
+  difficulty,
+  totalProblems,
+  color,
+  description: `${title} questions for placement preparation.`
+}));
+
 function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'All' }) {
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState(initialFilter);
@@ -524,7 +550,8 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
   useEffect(() => {
     setLoadingTopics(true);
     actions.loadContent({ type: 'topic' }).then((data) => {
-      setTopics(data || []);
+      const practiceTopics = (data || []).filter((topic) => topic.category !== 'DSA');
+      setTopics(practiceTopics.length > 0 ? practiceTopics : PRACTICE_TOPIC_FALLBACKS);
       setLoadingTopics(false);
     });
   }, [actions]);
