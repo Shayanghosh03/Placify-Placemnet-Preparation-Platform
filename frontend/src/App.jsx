@@ -539,6 +539,8 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
   const [loadingTopics, setLoadingTopics] = useState(true);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [solvingQuestion, setSolvingQuestion] = useState('');
+  const [solvedQuestions, setSolvedQuestions] = useState(() => new Set());
+  const [solveError, setSolveError] = useState('');
 
   useEffect(() => {
     if (initialQuery !== undefined) setQuery(initialQuery);
@@ -547,6 +549,11 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
   useEffect(() => {
     if (initialFilter !== undefined) setFilter(initialFilter);
   }, [initialFilter]);
+
+  useEffect(() => {
+    setSolvedQuestions(new Set());
+    setSolveError('');
+  }, [selectedTopic]);
 
   useEffect(() => {
     setLoadingTopics(true);
@@ -571,10 +578,14 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
   const selectedTopicData = topics.find((topic) => topic.title === selectedTopic);
 
   const markQuestionSolved = async (title) => {
-    if (!selectedTopicData?.itemId || solvingQuestion) return;
+    if (!selectedTopicData?.itemId || solvingQuestion || solvedQuestions.has(title)) return;
     setSolvingQuestion(title);
+    setSolveError('');
     try {
       await actions.solveTopic(selectedTopicData.itemId);
+      setSolvedQuestions((current) => new Set(current).add(title));
+    } catch {
+      setSolveError('Could not save this problem. Please try again.');
     } finally {
       setSolvingQuestion('');
     }
@@ -608,6 +619,7 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
               </div>
               <span className="dsa-problem-count">{selectedQuestions.length} questions</span>
             </div>
+            {solveError && <p className="dsa-solve-error" role="alert">{solveError}</p>}
             <div className="dsa-problems-table-wrap">
               <table className="dsa-problems-table">
                 <thead><tr><th>Question</th><th>Difficulty</th><th>Problem Link</th><th>Solution</th><th>Status</th></tr></thead>
@@ -618,7 +630,7 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
                       <td><span className={`dsa-difficulty ${difficulty.toLowerCase()}`}>{difficulty}</span></td>
                       <td className="dsa-problem-links"><a href={problemUrl} target="_blank" rel="noreferrer">Open problem <ArrowUpRight size={13} /></a></td>
                       <td className="dsa-problem-links"><a href={solutionUrl} target="_blank" rel="noreferrer">View solution <ArrowUpRight size={13} /></a></td>
-                      <td><button type="button" className="dsa-solve-button" disabled={solvingQuestion === title} onClick={() => markQuestionSolved(title)}>{solvingQuestion === title ? 'Saving…' : 'Mark solved'} <CheckCircle2 size={13} /></button></td>
+                      <td><button type="button" className={`dsa-solve-button${solvedQuestions.has(title) ? ' solved' : ''}`} disabled={solvingQuestion === title || solvedQuestions.has(title)} onClick={() => markQuestionSolved(title)}>{solvingQuestion === title ? 'Saving…' : solvedQuestions.has(title) ? 'Solved' : 'Mark solved'} <CheckCircle2 size={13} /></button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -740,6 +752,8 @@ function DsaPage({ summary, actions }) {
   const [loading, setLoading] = useState(true);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [solvingQuestion, setSolvingQuestion] = useState('');
+  const [solvedQuestions, setSolvedQuestions] = useState(() => new Set());
+  const [solveError, setSolveError] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -748,6 +762,11 @@ function DsaPage({ summary, actions }) {
       setLoading(false);
     });
   }, [actions]);
+
+  useEffect(() => {
+    setSolvedQuestions(new Set());
+    setSolveError('');
+  }, [selectedTopic]);
 
   const totalProblems = dsaTopics.reduce((s, t) => s + (t.totalProblems || 0), 0);
   const totalSolved = dsaTopics.reduce((s, t) => {
@@ -774,10 +793,14 @@ function DsaPage({ summary, actions }) {
   const selectedProgressId = topicCards.find(([, questionTopic]) => questionTopic === selectedTopic)?.[2];
 
   const markQuestionSolved = async (slug) => {
-    if (!selectedProgressId || solvingQuestion) return;
+    if (!selectedProgressId || solvingQuestion || solvedQuestions.has(slug)) return;
     setSolvingQuestion(slug);
+    setSolveError('');
     try {
       await actions.solveTopic(selectedProgressId);
+      setSolvedQuestions((current) => new Set(current).add(slug));
+    } catch {
+      setSolveError('Could not save this problem. Please try again.');
     } finally {
       setSolvingQuestion('');
     }
@@ -814,6 +837,7 @@ function DsaPage({ summary, actions }) {
                 </div>
                 <span className="dsa-problem-count">{visibleQuestions.length} problems</span>
               </div>
+              {solveError && <p className="dsa-solve-error" role="alert">{solveError}</p>}
               <div className="dsa-problems-table-wrap">
                 <table className="dsa-problems-table">
                   <thead><tr><th>Problem</th><th>Difficulty</th><th>Problem Link</th><th>Solution</th><th>Status</th></tr></thead>
@@ -824,7 +848,7 @@ function DsaPage({ summary, actions }) {
                         <td><span className={`dsa-difficulty ${difficulty.toLowerCase()}`}>{difficulty}</span></td>
                         <td className="dsa-problem-links"><a href={`https://leetcode.com/problems/${slug}/`} target="_blank" rel="noreferrer">Open problem <ArrowUpRight size={13} /></a></td>
                         <td className="dsa-problem-links"><a href={`https://neetcode.io/solutions/${solutionSlug}`} target="_blank" rel="noreferrer">View solution <ArrowUpRight size={13} /></a></td>
-                        <td><button type="button" className="dsa-solve-button" disabled={solvingQuestion === slug} onClick={() => markQuestionSolved(slug)}>{solvingQuestion === slug ? 'Saving…' : 'Mark solved'} <CheckCircle2 size={13} /></button></td>
+                        <td><button type="button" className={`dsa-solve-button${solvedQuestions.has(slug) ? ' solved' : ''}`} disabled={solvingQuestion === slug || solvedQuestions.has(slug)} onClick={() => markQuestionSolved(slug)}>{solvingQuestion === slug ? 'Saving…' : solvedQuestions.has(slug) ? 'Solved' : 'Mark solved'} <CheckCircle2 size={13} /></button></td>
                       </tr>
                     ))}
                   </tbody>

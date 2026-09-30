@@ -156,6 +156,7 @@ router.post('/topic/:topicId/solve', requireAuth, async (req, res, next) => {
 
     if (recordedCount > 0) {
       progress.problemsSolved = (progress.problemsSolved || 0) + recordedCount;
+      progress.todayMinutes = (progress.todayMinutes || 0) + recordedCount * 2;
       updateStreak(progress);
       logActivity(progress, { problems: recordedCount, minutes: recordedCount * 2 });
     }

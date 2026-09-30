@@ -741,6 +741,19 @@
 
   .dsa-solve-button:hover { background: #ede9fe; }
   .dsa-solve-button:disabled { opacity: .6; cursor: wait; }
+  .dsa-solve-button.solved {
+    border-color: #bbf7d0;
+    color: #15803d;
+    background: #f0fdf4;
+    cursor: default;
+  }
+
+  .dsa-solve-error {
+    margin: 12px 0 0;
+    color: #b91c1c;
+    font-size: .78rem;
+    font-weight: 700;
+  }
 
   .dsa-problems-table tbody tr:last-child td { border-bottom: 0; }
 
