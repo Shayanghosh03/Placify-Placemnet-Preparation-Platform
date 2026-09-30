@@ -1,5 +1,7 @@
 # Placify
 
+<img width="1900" height="905" alt="Image" src="https://github.com/user-attachments/assets/8366c9e5-228e-4f05-9d6f-64d523ddde25" />
+
 Placify is a placement-preparation platform that helps students practice aptitude, reasoning, verbal ability, and DSA topics in one dashboard.
 
 The application includes authentication, progress tracking, daily goals, curated practice questions, notes, mock tests, bookmarks, and a roadmap for consistent interview preparation.
