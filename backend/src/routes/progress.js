@@ -9,6 +9,33 @@ const router = Router();
 
 const todayStr = () => new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
+// Keep solving available for deployments where the optional content seed has
+// not been run yet. The normal Content collection remains the source of truth.
+const FALLBACK_TOPICS = {
+  'apt-percentages': ['Percentages', 'Aptitude', 20],
+  'apt-profit-loss': ['Profit & Loss', 'Aptitude', 18],
+  'apt-time-work': ['Time & Work', 'Aptitude', 15],
+  'apt-ratio-proportion': ['Ratio & Proportion', 'Aptitude', 12],
+  'apt-speed-distance': ['Speed, Distance & Time', 'Aptitude', 14],
+  'apt-simple-compound-interest': ['Simple & Compound Interest', 'Aptitude', 16],
+  'rsn-blood-relations': ['Blood Relations', 'Reasoning', 15],
+  'rsn-syllogism': ['Syllogism', 'Reasoning', 14],
+  'rsn-direction-sense': ['Direction Sense', 'Reasoning', 10],
+  'rsn-coding-decoding': ['Coding & Decoding', 'Reasoning', 12],
+  'rsn-seating-arrangement': ['Seating Arrangement', 'Reasoning', 10],
+  'va-error-spotting': ['Error Spotting', 'Verbal Ability', 12],
+  'va-reading-comprehension': ['Reading Comprehension', 'Verbal Ability', 10],
+  'va-sentence-completion': ['Sentence Completion', 'Verbal Ability', 12],
+  'va-synonyms-antonyms': ['Synonyms & Antonyms', 'Verbal Ability', 15],
+  'dsa-arrays-hashing': ['Arrays & Hashing', 'DSA', 25],
+  'dsa-stacks-queues': ['Stacks & Queues', 'DSA', 20],
+  'dsa-linked-lists': ['Linked Lists', 'DSA', 15],
+  'dsa-binary-search': ['Binary Search', 'DSA', 18],
+  'dsa-trees': ['Trees & BST', 'DSA', 22],
+  'dsa-graphs': ['Graphs', 'DSA', 20],
+  'dsa-dynamic-programming': ['Dynamic Programming', 'DSA', 25]
+};
+
 /** Get or create a user's Progress document */
 async function getOrCreateProgress(userId) {
   let progress = await Progress.findOne({ user: userId });
@@ -135,13 +162,14 @@ router.post('/topic/:topicId/solve', requireAuth, async (req, res, next) => {
     if (!topic) {
       // Fetch metadata from Content
       const content = await Content.findOne({ itemId: topicId });
-      if (!content) return res.status(404).json({ message: 'Topic not found' });
+      const fallback = FALLBACK_TOPICS[topicId];
+      if (!content && !fallback) return res.status(404).json({ message: 'Topic not found' });
       progress.topics.push({
         topicId,
-        title: content.title,
-        category: content.category,
+        title: content?.title || fallback[0],
+        category: content?.category || fallback[1],
         solved: 0,
-        total: content.totalProblems || 0,
+        total: content?.totalProblems || fallback[2],
         completed: false
       });
       topic = progress.topics[progress.topics.length - 1];
