@@ -532,6 +532,24 @@ const PRACTICE_TOPIC_FALLBACKS = [
   description: `${title} questions for placement preparation.`
 }));
 
+const DSA_TOPIC_FALLBACKS = [
+  ['dsa-arrays-hashing', 'Arrays & Hashing', 25, '#635bff'],
+  ['dsa-two-pointers', 'Two Pointers', 20, '#2563eb'],
+  ['dsa-sliding-window', 'Sliding Window', 18, '#0f766e'],
+  ['dsa-stacks-queues', 'Stacks & Queues', 20, '#db2777'],
+  ['dsa-linked-lists', 'Linked Lists', 15, '#f59e0b'],
+  ['dsa-binary-search', 'Binary Search', 18, '#16a34a'],
+  ['dsa-trees', 'Trees & BST', 22, '#9333ea'],
+  ['dsa-graphs', 'Graphs', 20, '#dc2626'],
+  ['dsa-dynamic-programming', 'Dynamic Programming', 25, '#0891b2']
+].map(([itemId, title, totalProblems, color]) => ({
+  itemId,
+  title,
+  category: 'DSA',
+  totalProblems,
+  color
+}));
+
 function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'All' }) {
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState(initialFilter);
@@ -758,7 +776,7 @@ function DsaPage({ summary, actions }) {
   useEffect(() => {
     setLoading(true);
     actions.loadContent({ type: 'topic', category: 'DSA' }).then((data) => {
-      setDsaTopics(data || []);
+      setDsaTopics(data?.length ? data : DSA_TOPIC_FALLBACKS);
       setLoading(false);
     });
   }, [actions]);
@@ -974,11 +992,18 @@ function NotesPage({ summary, actions }) {
 function MockTestsPage({ summary, actions }) {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const mockFallbacks = [
+    { itemId: 'mock-placement-readiness', title: 'Placement Readiness Check', category: 'Mixed', difficulty: 'Hard', totalProblems: 40, duration: '45 min', color: '#f59e0b' },
+    { itemId: 'mock-tcs-nqt-quant', title: 'TCS NQT — Quantitative Ability', category: 'Aptitude', difficulty: 'Medium', totalProblems: 20, duration: '25 min', color: '#635bff' },
+    { itemId: 'mock-infosys-foundation', title: 'Infosys Foundation Test', category: 'Aptitude', difficulty: 'Medium', totalProblems: 30, duration: '35 min', color: '#2563eb' },
+    { itemId: 'mock-accenture-cognitive', title: 'Accenture Cognitive Assessment', category: 'Reasoning', difficulty: 'Hard', totalProblems: 25, duration: '30 min', color: '#db2777' },
+    { itemId: 'mock-wipro-elite', title: 'Wipro Elite NLTH', category: 'Aptitude', difficulty: 'Medium', totalProblems: 25, duration: '28 min', color: '#16a34a' }
+  ];
 
   useEffect(() => {
     setLoading(true);
     actions.loadContent({ type: 'mock' }).then((data) => {
-      setTests(data || []);
+      setTests(data?.length ? data : mockFallbacks);
       setLoading(false);
     });
   }, [actions]);
@@ -993,15 +1018,15 @@ function MockTestsPage({ summary, actions }) {
       {featured && (
         <div className="mock-feature">
           <div>
-            <span className="page-eyebrow">RECOMMENDED FOR YOU</span>
+            <span className="page-eyebrow">COMING SOON</span>
             <h3>{featured.title}</h3>
-            <p>{featured.totalProblems} mixed questions designed to show you exactly where to focus next.</p>
-            <button type="button" className="btn btn-primary" onClick={() => actions.recordQuiz({ category: 'Mixed' })}>Start test <ArrowRight size={16} /></button>
+            <p>{featured.totalProblems} mixed questions are being prepared to show you exactly where to focus next.</p>
+            <button type="button" className="btn btn-primary" disabled>Coming soon <ArrowRight size={16} /></button>
           </div>
-          <div className="mock-feature-visual"><Target size={32} /><strong>{featured.totalProblems}</strong><span>questions</span></div>
+          <div className="mock-feature-visual"><Target size={32} /><strong>SOON</strong><span>assessment engine</span></div>
         </div>
       )}
-      <h3 className="workspace-subheading">Company-specific tests</h3>
+      <h3 className="workspace-subheading">Company-specific tests <span className="mock-coming-badge">Coming soon</span></h3>
       {loading ? (
         <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading tests…</span></div>
       ) : (
@@ -1013,8 +1038,8 @@ function MockTestsPage({ summary, actions }) {
                 <h3>{test.title}</h3>
                 <p>{test.totalProblems} questions <span>•</span> {test.duration} <span>•</span> {test.difficulty}</p>
               </div>
-              <span className="mock-best">{test.completed ? 'Completed' : 'Not attempted'}</span>
-              <button type="button" className="btn btn-small" onClick={() => actions.recordQuiz({ category: test.category })}>Take test <ChevronRight size={14} /></button>
+              <span className="mock-best mock-coming-text">Coming soon</span>
+              <button type="button" className="btn btn-small" disabled>Coming soon <ChevronRight size={14} /></button>
             </article>
           ))}
         </div>

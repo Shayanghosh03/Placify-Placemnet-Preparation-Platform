@@ -928,6 +928,27 @@
     font-size: .75rem;
   }
 
+  .mock-coming-badge,
+  .mock-coming-text {
+    color: #b45309;
+    font-size: .72rem;
+    font-weight: 800;
+  }
+
+  .mock-coming-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    margin-left: 6px;
+    border-radius: 999px;
+    background: #fef3c7;
+  }
+
+  .mock-feature .btn:disabled,
+  .mock-row .btn:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+  }
+
   .btn-small {
     padding: 8px 11px;
     font-size: .77rem;
