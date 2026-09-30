@@ -723,6 +723,25 @@
 
   .dsa-problem-links a:hover { text-decoration: underline; }
 
+  .dsa-solve-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 9px;
+    border: 1px solid #c7d2fe;
+    border-radius: 7px;
+    color: var(--primary-purple);
+    background: #f5f3ff;
+    font: inherit;
+    font-size: .7rem;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .dsa-solve-button:hover { background: #ede9fe; }
+  .dsa-solve-button:disabled { opacity: .6; cursor: wait; }
+
   .dsa-problems-table tbody tr:last-child td { border-bottom: 0; }
 
   @media (max-width: 900px) {

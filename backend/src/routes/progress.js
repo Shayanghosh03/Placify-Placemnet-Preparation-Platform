@@ -147,13 +147,18 @@ router.post('/topic/:topicId/solve', requireAuth, async (req, res, next) => {
       topic = progress.topics[progress.topics.length - 1];
     }
 
-    topic.solved = Math.min((topic.solved || 0) + count, topic.total || Infinity);
+    const previousSolved = topic.solved || 0;
+    const available = topic.total > 0 ? Math.max(0, topic.total - previousSolved) : count;
+    const recordedCount = Math.min(count, available);
+    topic.solved = previousSolved + recordedCount;
     topic.lastAttempted = new Date();
     topic.completed = topic.solved >= topic.total && topic.total > 0;
 
-    progress.problemsSolved = (progress.problemsSolved || 0) + count;
-    updateStreak(progress);
-    logActivity(progress, { problems: count, minutes: count * 2 });
+    if (recordedCount > 0) {
+      progress.problemsSolved = (progress.problemsSolved || 0) + recordedCount;
+      updateStreak(progress);
+      logActivity(progress, { problems: recordedCount, minutes: recordedCount * 2 });
+    }
 
     await progress.save();
     return res.json({ topic, summary: buildSummary(progress) });

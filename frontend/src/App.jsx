@@ -538,6 +538,7 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
   const [topics, setTopics] = useState([]);
   const [loadingTopics, setLoadingTopics] = useState(true);
   const [selectedTopic, setSelectedTopic] = useState(null);
+  const [solvingQuestion, setSolvingQuestion] = useState('');
 
   useEffect(() => {
     if (initialQuery !== undefined) setQuery(initialQuery);
@@ -567,6 +568,17 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
   const todayMinutes = summary?.todayMinutes ?? 0;
   const overallPercent = summary?.overall ?? 0;
   const selectedQuestions = selectedTopic ? (PRACTICE_QUESTIONS[selectedTopic] || []) : [];
+  const selectedTopicData = topics.find((topic) => topic.title === selectedTopic);
+
+  const markQuestionSolved = async (title) => {
+    if (!selectedTopicData?.itemId || solvingQuestion) return;
+    setSolvingQuestion(title);
+    try {
+      await actions.solveTopic(selectedTopicData.itemId);
+    } finally {
+      setSolvingQuestion('');
+    }
+  };
 
   return (
     <section className="workspace-page">
@@ -598,7 +610,7 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
             </div>
             <div className="dsa-problems-table-wrap">
               <table className="dsa-problems-table">
-                <thead><tr><th>Question</th><th>Difficulty</th><th>Problem Link</th><th>Solution</th></tr></thead>
+                <thead><tr><th>Question</th><th>Difficulty</th><th>Problem Link</th><th>Solution</th><th>Status</th></tr></thead>
                 <tbody>
                   {selectedQuestions.map(([title, difficulty, problemUrl, solutionUrl]) => (
                     <tr key={title}>
@@ -606,6 +618,7 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
                       <td><span className={`dsa-difficulty ${difficulty.toLowerCase()}`}>{difficulty}</span></td>
                       <td className="dsa-problem-links"><a href={problemUrl} target="_blank" rel="noreferrer">Open problem <ArrowUpRight size={13} /></a></td>
                       <td className="dsa-problem-links"><a href={solutionUrl} target="_blank" rel="noreferrer">View solution <ArrowUpRight size={13} /></a></td>
+                      <td><button type="button" className="dsa-solve-button" disabled={solvingQuestion === title} onClick={() => markQuestionSolved(title)}>{solvingQuestion === title ? 'Saving…' : 'Mark solved'} <CheckCircle2 size={13} /></button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -726,6 +739,7 @@ function DsaPage({ summary, actions }) {
   const [dsaTopics, setDsaTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTopic, setSelectedTopic] = useState(null);
+  const [solvingQuestion, setSolvingQuestion] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -744,8 +758,8 @@ function DsaPage({ summary, actions }) {
   const weeksLeft = Math.max(1, Math.round(((totalProblems - totalSolved) / 5)));
   const topicCards = [
     ['Arrays', 'Arrays & Hashing', 'dsa-arrays-hashing', '#635bff', 'Build strong fundamentals with sorting, searching, and prefix patterns.'],
-    ['Strings', 'Strings', null, '#db2777', 'Master frequency maps, palindromes, and string manipulation patterns.'],
-    ['Hashing', 'Hashing', null, '#2563eb', 'Solve lookup and frequency problems with efficient hash-based techniques.'],
+    ['Strings', 'Strings', 'dsa-arrays-hashing', '#db2777', 'Master frequency maps, palindromes, and string manipulation patterns.'],
+    ['Hashing', 'Hashing', 'dsa-arrays-hashing', '#2563eb', 'Solve lookup and frequency problems with efficient hash-based techniques.'],
     ['Linked Lists', 'Linked Lists', 'dsa-linked-lists', '#f59e0b', 'Practice reversal, cycles, merging, and pointer techniques.'],
     ['Stack', 'Stack', 'dsa-stacks-queues', '#ef476f', 'Learn monotonic stacks, parsing, and last-in-first-out patterns.'],
     ['Queue', 'Queue', 'dsa-stacks-queues', '#0f766e', 'Use queues for scheduling, BFS traversal, and sliding window problems.'],
@@ -757,6 +771,17 @@ function DsaPage({ summary, actions }) {
   const visibleQuestions = selectedTopic
     ? (DSA_PROBLEMS[selectedTopic] || []).map((question) => [selectedTopic, ...question])
     : [];
+  const selectedProgressId = topicCards.find(([, questionTopic]) => questionTopic === selectedTopic)?.[2];
+
+  const markQuestionSolved = async (slug) => {
+    if (!selectedProgressId || solvingQuestion) return;
+    setSolvingQuestion(slug);
+    try {
+      await actions.solveTopic(selectedProgressId);
+    } finally {
+      setSolvingQuestion('');
+    }
+  };
 
   return (
     <section className="workspace-page">
@@ -791,7 +816,7 @@ function DsaPage({ summary, actions }) {
               </div>
               <div className="dsa-problems-table-wrap">
                 <table className="dsa-problems-table">
-                  <thead><tr><th>Problem</th><th>Difficulty</th><th>Problem Link</th><th>Solution</th></tr></thead>
+                  <thead><tr><th>Problem</th><th>Difficulty</th><th>Problem Link</th><th>Solution</th><th>Status</th></tr></thead>
                   <tbody>
                     {visibleQuestions.map(([topic, title, difficulty, slug, solutionSlug]) => (
                       <tr key={`${topic}-${slug}`}>
@@ -799,6 +824,7 @@ function DsaPage({ summary, actions }) {
                         <td><span className={`dsa-difficulty ${difficulty.toLowerCase()}`}>{difficulty}</span></td>
                         <td className="dsa-problem-links"><a href={`https://leetcode.com/problems/${slug}/`} target="_blank" rel="noreferrer">Open problem <ArrowUpRight size={13} /></a></td>
                         <td className="dsa-problem-links"><a href={`https://neetcode.io/solutions/${solutionSlug}`} target="_blank" rel="noreferrer">View solution <ArrowUpRight size={13} /></a></td>
+                        <td><button type="button" className="dsa-solve-button" disabled={solvingQuestion === slug} onClick={() => markQuestionSolved(slug)}>{solvingQuestion === slug ? 'Saving…' : 'Mark solved'} <CheckCircle2 size={13} /></button></td>
                       </tr>
                     ))}
                   </tbody>
