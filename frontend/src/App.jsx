@@ -8,7 +8,7 @@ import Modals from './components/Modals';
 import ProfileSettings from './components/ProfileSettings';
 import UserAvatar from './components/UserAvatar';
 import { useDashboard } from './hooks/useDashboard.js';
-import { ArrowRight, BarChart3, BookOpen, Bookmark, CheckCircle2, ChevronRight, CirclePlay, Code2, Download, FileText, Filter, Flame, Home, LayoutDashboard, LogOut, Mail, MapPin, Menu, NotebookTabs, PlayCircle, RotateCcw, Search, Send, Settings, Target, Trophy, Users, X, Zap } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BarChart3, BookOpen, Bookmark, CheckCircle2, ChevronRight, CirclePlay, Code2, Download, FileText, Filter, Flame, Home, LayoutDashboard, LogOut, Mail, MapPin, Menu, NotebookTabs, PlayCircle, RotateCcw, Search, Send, Settings, Target, Trophy, Users, X, Zap } from 'lucide-react';
 import './App.css';
 
 const getGreeting = () => {
@@ -519,9 +519,68 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
   );
 }
 
+const DSA_PROBLEMS = {
+  'Arrays & Hashing': [
+    ['Two Sum', 'Easy', 'two-sum', 'two-sum'],
+    ['Contains Duplicate', 'Easy', 'contains-duplicate', 'contains-duplicate'],
+    ['Valid Anagram', 'Easy', 'valid-anagram', 'valid-anagram'],
+    ['Group Anagrams', 'Medium', 'group-anagrams', 'group-anagrams'],
+    ['Product of Array Except Self', 'Medium', 'product-of-array-except-self', 'product-of-array-except-self']
+  ],
+  'Two Pointers': [
+    ['Valid Palindrome', 'Easy', 'valid-palindrome', 'valid-palindrome'],
+    ['3Sum', 'Medium', '3sum', '3sum'],
+    ['Container With Most Water', 'Medium', 'container-with-most-water', 'container-with-most-water'],
+    ['Trapping Rain Water', 'Hard', 'trapping-rain-water', 'trapping-rain-water']
+  ],
+  'Sliding Window': [
+    ['Best Time to Buy and Sell Stock', 'Easy', 'best-time-to-buy-and-sell-stock', 'best-time-to-buy-and-sell-stock'],
+    ['Longest Substring Without Repeating Characters', 'Medium', 'longest-substring-without-repeating-characters', 'longest-substring-without-repeating-characters'],
+    ['Longest Repeating Character Replacement', 'Medium', 'longest-repeating-character-replacement', 'longest-repeating-character-replacement'],
+    ['Minimum Window Substring', 'Hard', 'minimum-window-substring', 'minimum-window-substring']
+  ],
+  'Stacks & Queues': [
+    ['Valid Parentheses', 'Easy', 'valid-parentheses', 'valid-parentheses'],
+    ['Min Stack', 'Medium', 'min-stack', 'min-stack'],
+    ['Evaluate Reverse Polish Notation', 'Medium', 'evaluate-reverse-polish-notation', 'evaluate-reverse-polish-notation'],
+    ['Daily Temperatures', 'Medium', 'daily-temperatures', 'daily-temperatures']
+  ],
+  'Linked Lists': [
+    ['Reverse Linked List', 'Easy', 'reverse-linked-list', 'reverse-linked-list'],
+    ['Merge Two Sorted Lists', 'Easy', 'merge-two-sorted-lists', 'merge-two-sorted-lists'],
+    ['Linked List Cycle', 'Easy', 'linked-list-cycle', 'linked-list-cycle'],
+    ['LRU Cache', 'Medium', 'lru-cache', 'lru-cache']
+  ],
+  'Binary Search': [
+    ['Binary Search', 'Easy', 'binary-search', 'binary-search'],
+    ['Search in Rotated Sorted Array', 'Medium', 'search-in-rotated-sorted-array', 'search-in-rotated-sorted-array'],
+    ['Koko Eating Bananas', 'Medium', 'koko-eating-bananas', 'koko-eating-bananas']
+  ],
+  'Trees & BST': [
+    ['Invert Binary Tree', 'Easy', 'invert-binary-tree', 'invert-binary-tree'],
+    ['Binary Tree Level Order Traversal', 'Medium', 'binary-tree-level-order-traversal', 'binary-tree-level-order-traversal'],
+    ['Validate Binary Search Tree', 'Medium', 'validate-binary-search-tree', 'validate-binary-search-tree'],
+    ['Lowest Common Ancestor of a BST', 'Medium', 'lowest-common-ancestor-of-a-binary-search-tree', 'lowest-common-ancestor-of-a-binary-search-tree']
+  ],
+  Graphs: [
+    ['Number of Islands', 'Medium', 'number-of-islands', 'number-of-islands'],
+    ['Clone Graph', 'Medium', 'clone-graph', 'clone-graph'],
+    ['Course Schedule', 'Medium', 'course-schedule', 'course-schedule'],
+    ['Rotting Oranges', 'Medium', 'rotting-oranges', 'rotting-oranges']
+  ],
+  'Dynamic Programming': [
+    ['Climbing Stairs', 'Easy', 'climbing-stairs', 'climbing-stairs'],
+    ['House Robber', 'Medium', 'house-robber', 'house-robber'],
+    ['Coin Change', 'Medium', 'coin-change', 'coin-change'],
+    ['Longest Increasing Subsequence', 'Medium', 'longest-increasing-subsequence', 'longest-increasing-subsequence'],
+    ['Word Break', 'Medium', 'word-break', 'word-break']
+  ]
+};
+
 function DsaPage({ summary, actions }) {
   const [dsaTopics, setDsaTopics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTopic, setSelectedTopic] = useState('All');
 
   useEffect(() => {
     setLoading(true);
@@ -538,6 +597,10 @@ function DsaPage({ summary, actions }) {
   }, 0);
   const overallPct = totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0;
   const weeksLeft = Math.max(1, Math.round(((totalProblems - totalSolved) / 5)));
+  const topicNames = dsaTopics.map((topic) => topic.title);
+  const visibleQuestions = selectedTopic === 'All'
+    ? Object.entries(DSA_PROBLEMS).flatMap(([topic, questions]) => questions.map((question) => [topic, ...question]))
+    : (DSA_PROBLEMS[selectedTopic] || []).map((question) => [selectedTopic, ...question]);
 
   return (
     <section className="workspace-page">
@@ -556,29 +619,73 @@ function DsaPage({ summary, actions }) {
       {loading ? (
         <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading DSA topics…</span></div>
       ) : (
-        <div className="workspace-card-grid">
-          {dsaTopics.map((topic) => {
-            const topicProgress = (summary?.topics || []).find((t) => t.topicId === topic.itemId);
-            const currentSolved = topicProgress !== undefined ? topicProgress.solved : (topic.solved || 0);
-            const total = topic.totalProblems || topic.total || 0;
-            const pct = total > 0 ? Math.round((currentSolved / total) * 100) : 0;
-            return (
-              <article className="content-card dsa-card" key={topic.itemId}>
-                <div className="content-card-top">
-                  <span className="content-icon purple"><Code2 size={19} /></span>
-                  <span className="topic-count">{currentSolved} / {total}</span>
-                </div>
-                <h3>{topic.title}</h3>
-                <p>{topic.description}</p>
-                <div className="mini-progress"><i style={{ width: `${pct}%`, backgroundColor: topic.color }} /></div>
-                <div className="card-meta">
-                  <span>{pct}% complete</span>
-                  <button type="button" onClick={() => actions.solveTopic(topic.itemId)}>View problems <ChevronRight size={14} /></button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+        <>
+          <div className="dsa-topic-tabs" role="tablist" aria-label="DSA topics">
+            {['All', ...topicNames].map((topic) => (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={selectedTopic === topic}
+                className={selectedTopic === topic ? 'active' : ''}
+                key={topic}
+                onClick={() => setSelectedTopic(topic)}
+              >
+                {topic}
+              </button>
+            ))}
+          </div>
+          <div className="workspace-card-grid">
+            {dsaTopics.map((topic) => {
+              const topicProgress = (summary?.topics || []).find((t) => t.topicId === topic.itemId);
+              const currentSolved = topicProgress !== undefined ? topicProgress.solved : (topic.solved || 0);
+              const total = topic.totalProblems || topic.total || 0;
+              const pct = total > 0 ? Math.round((currentSolved / total) * 100) : 0;
+              return (
+                <article className="content-card dsa-card" key={topic.itemId}>
+                  <div className="content-card-top">
+                    <span className="content-icon purple"><Code2 size={19} /></span>
+                    <span className="topic-count">{currentSolved} / {total}</span>
+                  </div>
+                  <h3>{topic.title}</h3>
+                  <p>{topic.description}</p>
+                  <div className="mini-progress"><i style={{ width: `${pct}%`, backgroundColor: topic.color }} /></div>
+                  <div className="card-meta">
+                    <span>{pct}% complete</span>
+                    <button type="button" onClick={() => setSelectedTopic(topic.title)}>View problems <ChevronRight size={14} /></button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          <section className="dsa-problems-panel">
+            <div className="dsa-problems-heading">
+              <div>
+                <span className="page-eyebrow">CURATED PRACTICE</span>
+                <h3>{selectedTopic === 'All' ? 'Top LeetCode Questions' : `${selectedTopic} Questions`}</h3>
+                <p>Practice the most useful interview problems, then review a clear solution.</p>
+              </div>
+              <span className="dsa-problem-count">{visibleQuestions.length} problems</span>
+            </div>
+            <div className="dsa-problems-table-wrap">
+              <table className="dsa-problems-table">
+                <thead><tr><th>Problem</th><th>Difficulty</th><th>Topic</th><th>Links</th></tr></thead>
+                <tbody>
+                  {visibleQuestions.map(([topic, title, difficulty, slug, solutionSlug]) => (
+                    <tr key={`${topic}-${slug}`}>
+                      <td><strong>{title}</strong></td>
+                      <td><span className={`dsa-difficulty ${difficulty.toLowerCase()}`}>{difficulty}</span></td>
+                      <td>{topic}</td>
+                      <td className="dsa-problem-links">
+                        <a href={`https://leetcode.com/problems/${slug}/`} target="_blank" rel="noreferrer">Problem <ArrowUpRight size={13} /></a>
+                        <a href={`https://neetcode.io/solutions/${solutionSlug}`} target="_blank" rel="noreferrer">Solution <ArrowUpRight size={13} /></a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
       )}
     </section>
   );
@@ -1191,7 +1298,23 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
               <div className="dashboard-progress-card">
                 <h2>Overall Progress</h2>
                 <div className="dashboard-progress-content">
-                  <div className="dashboard-progress-ring"><strong>{summary?.overall ?? 0}%</strong><span>Completion</span></div>
+                  {(() => {
+                    const overall = Math.max(0, Math.min(100, Number(summary?.overall) || 0));
+                    const firstColorStop = (overall * 0.34).toFixed(2);
+                    const secondColorStop = (overall * 0.67).toFixed(2);
+                    const ringBackground = overall > 0
+                      ? `radial-gradient(circle, #ffffff 57%, transparent 58%), conic-gradient(#3b82f6 0 ${firstColorStop}%, #ef476f ${firstColorStop}% ${secondColorStop}%, #16a34a ${secondColorStop}% ${overall}%, #e8eef8 ${overall}% 100%)`
+                      : 'radial-gradient(circle, #ffffff 57%, transparent 58%), conic-gradient(#e8eef8 0 100%)';
+                    return (
+                      <div
+                        className={`dashboard-progress-ring${overall > 0 ? ' active' : ''}`}
+                        style={{ background: ringBackground }}
+                      >
+                        <strong>{overall}%</strong>
+                        <span>Completion</span>
+                      </div>
+                    );
+                  })()}
                   <div className="dashboard-subject-progress">
                     {(summary?.categoryProgress || [
                       { category: 'Aptitude', percent: 0 },

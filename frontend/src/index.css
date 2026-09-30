@@ -1072,7 +1072,16 @@ p {
   height: 128px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, #ffffff 57%, transparent 58%), conic-gradient(#3b82f6 0 68%, #e8eef8 68% 100%);
+  transition: background 0.35s ease;
+}
+
+.dashboard-progress-ring.active {
+  animation: dashboard-progress-reveal 0.7s ease-out both;
+}
+
+@keyframes dashboard-progress-reveal {
+  from { opacity: 0.35; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .dashboard-progress-ring strong {
