@@ -527,6 +527,18 @@ const DSA_PROBLEMS = {
     ['Group Anagrams', 'Medium', 'group-anagrams', 'group-anagrams'],
     ['Product of Array Except Self', 'Medium', 'product-of-array-except-self', 'product-of-array-except-self']
   ],
+  Strings: [
+    ['Valid Anagram', 'Easy', 'valid-anagram', 'valid-anagram'],
+    ['Longest Common Prefix', 'Easy', 'longest-common-prefix', 'longest-common-prefix'],
+    ['Longest Palindromic Substring', 'Medium', 'longest-palindromic-substring', 'longest-palindromic-substring'],
+    ['Encode and Decode Strings', 'Medium', 'encode-and-decode-strings', 'encode-and-decode-strings']
+  ],
+  Hashing: [
+    ['Two Sum', 'Easy', 'two-sum', 'two-sum'],
+    ['Contains Duplicate', 'Easy', 'contains-duplicate', 'contains-duplicate'],
+    ['Group Anagrams', 'Medium', 'group-anagrams', 'group-anagrams'],
+    ['Longest Consecutive Sequence', 'Medium', 'longest-consecutive-sequence', 'longest-consecutive-sequence']
+  ],
   'Two Pointers': [
     ['Valid Palindrome', 'Easy', 'valid-palindrome', 'valid-palindrome'],
     ['3Sum', 'Medium', '3sum', '3sum'],
@@ -544,6 +556,16 @@ const DSA_PROBLEMS = {
     ['Min Stack', 'Medium', 'min-stack', 'min-stack'],
     ['Evaluate Reverse Polish Notation', 'Medium', 'evaluate-reverse-polish-notation', 'evaluate-reverse-polish-notation'],
     ['Daily Temperatures', 'Medium', 'daily-temperatures', 'daily-temperatures']
+  ],
+  Stack: [
+    ['Valid Parentheses', 'Easy', 'valid-parentheses', 'valid-parentheses'],
+    ['Min Stack', 'Medium', 'min-stack', 'min-stack'],
+    ['Daily Temperatures', 'Medium', 'daily-temperatures', 'daily-temperatures']
+  ],
+  Queue: [
+    ['Number of Recent Calls', 'Easy', 'number-of-recent-calls', 'number-of-recent-calls'],
+    ['Design Circular Queue', 'Medium', 'design-circular-queue', 'design-circular-queue'],
+    ['Sliding Window Maximum', 'Hard', 'sliding-window-maximum', 'sliding-window-maximum']
   ],
   'Linked Lists': [
     ['Reverse Linked List', 'Easy', 'reverse-linked-list', 'reverse-linked-list'],
@@ -580,7 +602,7 @@ const DSA_PROBLEMS = {
 function DsaPage({ summary, actions }) {
   const [dsaTopics, setDsaTopics] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTopic, setSelectedTopic] = useState('All');
+  const [selectedTopic, setSelectedTopic] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -597,10 +619,21 @@ function DsaPage({ summary, actions }) {
   }, 0);
   const overallPct = totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0;
   const weeksLeft = Math.max(1, Math.round(((totalProblems - totalSolved) / 5)));
-  const topicNames = dsaTopics.map((topic) => topic.title);
-  const visibleQuestions = selectedTopic === 'All'
-    ? Object.entries(DSA_PROBLEMS).flatMap(([topic, questions]) => questions.map((question) => [topic, ...question]))
-    : (DSA_PROBLEMS[selectedTopic] || []).map((question) => [selectedTopic, ...question]);
+  const topicCards = [
+    ['Arrays', 'Arrays & Hashing', 'dsa-arrays-hashing', '#635bff', 'Build strong fundamentals with sorting, searching, and prefix patterns.'],
+    ['Strings', 'Strings', null, '#db2777', 'Master frequency maps, palindromes, and string manipulation patterns.'],
+    ['Hashing', 'Hashing', null, '#2563eb', 'Solve lookup and frequency problems with efficient hash-based techniques.'],
+    ['Linked Lists', 'Linked Lists', 'dsa-linked-lists', '#f59e0b', 'Practice reversal, cycles, merging, and pointer techniques.'],
+    ['Stack', 'Stack', 'dsa-stacks-queues', '#ef476f', 'Learn monotonic stacks, parsing, and last-in-first-out patterns.'],
+    ['Queue', 'Queue', 'dsa-stacks-queues', '#0f766e', 'Use queues for scheduling, BFS traversal, and sliding window problems.'],
+    ['Binary Search', 'Binary Search', 'dsa-binary-search', '#16a34a', 'Find answers efficiently across sorted arrays and search spaces.'],
+    ['Trees', 'Trees & BST', 'dsa-trees', '#9333ea', 'Build confidence with DFS, BFS, and binary search tree problems.'],
+    ['Graphs', 'Graphs', 'dsa-graphs', '#dc2626', 'Practice traversal, shortest paths, and dependency relationships.'],
+    ['Dynamic Programming', 'Dynamic Programming', 'dsa-dynamic-programming', '#0891b2', 'Recognize overlapping subproblems and build memoized solutions.']
+  ];
+  const visibleQuestions = selectedTopic
+    ? (DSA_PROBLEMS[selectedTopic] || []).map((question) => [selectedTopic, ...question])
+    : [];
 
   return (
     <section className="workspace-page">
@@ -620,52 +653,40 @@ function DsaPage({ summary, actions }) {
         <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading DSA topics…</span></div>
       ) : (
         <>
-          <div className="dsa-topic-tabs" role="tablist" aria-label="DSA topics">
-            {['All', ...topicNames].map((topic) => (
-              <button
-                type="button"
-                role="tab"
-                aria-selected={selectedTopic === topic}
-                className={selectedTopic === topic ? 'active' : ''}
-                key={topic}
-                onClick={() => setSelectedTopic(topic)}
-              >
-                {topic}
-              </button>
-            ))}
-          </div>
-          <div className="workspace-card-grid">
-            {dsaTopics.map((topic) => {
-              const topicProgress = (summary?.topics || []).find((t) => t.topicId === topic.itemId);
-              const currentSolved = topicProgress !== undefined ? topicProgress.solved : (topic.solved || 0);
-              const total = topic.totalProblems || topic.total || 0;
+          <div className="dsa-topic-card-grid">
+            {topicCards.map(([label, questionTopic, progressId, color, description]) => {
+              const topic = dsaTopics.find((item) => item.itemId === progressId);
+              const topicProgress = (summary?.topics || []).find((t) => t.topicId === progressId);
+              const currentSolved = topicProgress !== undefined ? topicProgress.solved : (topic?.solved || 0);
+              const total = topic?.totalProblems || DSA_PROBLEMS[questionTopic]?.length || 0;
               const pct = total > 0 ? Math.round((currentSolved / total) * 100) : 0;
               return (
-                <article className="content-card dsa-card" key={topic.itemId}>
+                <article className={`content-card dsa-card${selectedTopic === questionTopic ? ' selected' : ''}`} key={label}>
                   <div className="content-card-top">
-                    <span className="content-icon purple"><Code2 size={19} /></span>
+                    <span className="content-icon" style={{ color, backgroundColor: `${color}18` }}><Code2 size={19} /></span>
                     <span className="topic-count">{currentSolved} / {total}</span>
                   </div>
-                  <h3>{topic.title}</h3>
-                  <p>{topic.description}</p>
-                  <div className="mini-progress"><i style={{ width: `${pct}%`, backgroundColor: topic.color }} /></div>
+                  <h3>{label}</h3>
+                  <p>{description}</p>
+                  <div className="mini-progress"><i style={{ width: `${pct}%`, backgroundColor: color }} /></div>
                   <div className="card-meta">
                     <span>{pct}% complete</span>
-                    <button type="button" onClick={() => setSelectedTopic(topic.title)}>View problems <ChevronRight size={14} /></button>
+                    <button type="button" onClick={() => setSelectedTopic(questionTopic)}>Open questions <ChevronRight size={14} /></button>
                   </div>
                 </article>
               );
             })}
           </div>
-          <section className="dsa-problems-panel">
+          {selectedTopic && <section className="dsa-problems-panel">
             <div className="dsa-problems-heading">
               <div>
                 <span className="page-eyebrow">CURATED PRACTICE</span>
-                <h3>{selectedTopic === 'All' ? 'Top LeetCode Questions' : `${selectedTopic} Questions`}</h3>
-                <p>Practice the most useful interview problems, then review a clear solution.</p>
+                <h3>{selectedTopic} Questions</h3>
+                <p>Practice these interview problems, then review a clear solution.</p>
               </div>
               <span className="dsa-problem-count">{visibleQuestions.length} problems</span>
             </div>
+            <button type="button" className="dsa-close-questions" onClick={() => setSelectedTopic(null)}>Close questions</button>
             <div className="dsa-problems-table-wrap">
               <table className="dsa-problems-table">
                 <thead><tr><th>Problem</th><th>Difficulty</th><th>Topic</th><th>Links</th></tr></thead>
@@ -684,7 +705,7 @@ function DsaPage({ summary, actions }) {
                 </tbody>
               </table>
             </div>
-          </section>
+          </section>}
         </>
       )}
     </section>
