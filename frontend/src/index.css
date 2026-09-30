@@ -3030,6 +3030,10 @@ p {
     gap: 14px;
     padding-right: 52px;
   }
+  .dashboard-profile-menu {
+    right: -2px;
+    width: min(220px, calc(100vw - 32px));
+  }
   .dashboard-topbar-heading {
     flex: 1 1 100%;
   }

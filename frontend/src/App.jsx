@@ -973,7 +973,7 @@ function MockTestsPage({ summary, actions }) {
   );
 }
 
-function RoadmapPage({ summary }) {
+function RoadmapPage({ summary, onNavigate }) {
   const categoryProgress = Object.fromEntries((summary?.categoryProgress || []).map(({ category, percent }) => [category, percent]));
   const averageFoundation = Math.round(
     ['Aptitude', 'Reasoning', 'Verbal Ability'].reduce((total, category) => total + (categoryProgress[category] || 0), 0) / 3
@@ -986,6 +986,7 @@ function RoadmapPage({ summary }) {
   ];
   const overall = Math.max(0, Math.min(100, Number(summary?.overall) || Math.round(phases.reduce((total, phase) => total + phase.progress, 0) / phases.length)));
   const completedPhases = phases.filter((phase) => phase.progress >= 100).length;
+  const phaseTabs = { '1': 'Practice', '2': 'DSA', '3': 'Mock Tests', '4': 'Profile Settings' };
 
   return (
     <section className="workspace-page roadmap-page">
@@ -1018,7 +1019,7 @@ function RoadmapPage({ summary }) {
                 <div className="roadmap-step-progress"><i style={{ width: `${phase.progress}%`, backgroundColor: phase.color }} /></div>
                 <span className="roadmap-step-meta">{phase.progress}% complete <span>•</span> {phase.detail}</span>
               </div>
-              <button type="button">{done ? 'Review' : phase.progress > 0 ? 'Continue' : 'Start phase'} <ChevronRight size={15} /></button>
+              <button type="button" onClick={() => onNavigate(phaseTabs[phase.number])}>{done ? 'Review' : phase.progress > 0 ? 'Continue' : 'Start phase'} <ChevronRight size={15} /></button>
             </article>
           );
         })}
@@ -1061,12 +1062,12 @@ function BookmarksPage({ summary, actions }) {
   );
 }
 
-function WorkspacePage({ tab, summary, actions, practiceQuery, practiceFilter }) {
+function WorkspacePage({ tab, summary, actions, practiceQuery, practiceFilter, onNavigate }) {
   if (tab === 'Practice') return <PracticePage summary={summary} actions={actions} initialQuery={practiceQuery} initialFilter={practiceFilter} />;
   if (tab === 'DSA') return <DsaPage summary={summary} actions={actions} />;
   if (tab === 'Notes') return <NotesPage summary={summary} actions={actions} />;
   if (tab === 'Mock Tests') return <MockTestsPage summary={summary} actions={actions} />;
-  if (tab === 'Roadmap') return <RoadmapPage summary={summary} />;
+  if (tab === 'Roadmap') return <RoadmapPage summary={summary} onNavigate={onNavigate} />;
   if (tab === 'Bookmarks') return <BookmarksPage summary={summary} actions={actions} />;
   return <section className="dashboard-panel dashboard-tab-panel"><span className="page-eyebrow">{tab.toUpperCase()}</span><h2>{tab}</h2><p>Your {tab.toLowerCase()} workspace is ready. Keep practicing consistently to improve your placement readiness.</p></section>;
 }
@@ -1715,6 +1716,7 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
             actions={actions}
             practiceQuery={practiceQuery}
             practiceFilter={practiceFilter}
+            onNavigate={handleSelectTab}
           />
         )}
         {showDailyGoals && (
