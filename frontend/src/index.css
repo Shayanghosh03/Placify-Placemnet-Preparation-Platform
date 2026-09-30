@@ -793,7 +793,14 @@ p {
   color: #ffffff;
   background: #111827;
   overflow-y: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dashboard-sidebar::-webkit-scrollbar,
+.dashboard-main::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .dashboard-sidebar-backdrop,
@@ -971,6 +978,8 @@ p {
   padding: 18px clamp(22px, 5vw, 64px) 34px;
   background: #f8fafc;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .dashboard-topbar {
