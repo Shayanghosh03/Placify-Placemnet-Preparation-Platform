@@ -443,11 +443,75 @@ function WorkspaceHeader({ eyebrow, title, description, action, compact = false 
   );
 }
 
+const PRACTICE_QUESTIONS = {
+  Percentages: [
+    ['Percentage Basics', 'Easy', 'https://www.indiabix.com/aptitude/percentage/', 'https://www.indiabix.com/aptitude/percentage/'],
+    ['Successive Percentage Change', 'Medium', 'https://www.indiabix.com/aptitude/percentage/', 'https://www.geeksforgeeks.org/quantitative-aptitude/percentages/']
+  ],
+  'Profit & Loss': [
+    ['Profit and Loss Basics', 'Easy', 'https://www.indiabix.com/aptitude/profit-and-loss/', 'https://www.indiabix.com/aptitude/profit-and-loss/'],
+    ['Marked Price and Discount', 'Medium', 'https://www.indiabix.com/aptitude/profit-and-loss/', 'https://www.geeksforgeeks.org/quantitative-aptitude/profit-and-loss/']
+  ],
+  'Time & Work': [
+    ['Work and Wages', 'Easy', 'https://www.indiabix.com/aptitude/time-and-work/', 'https://www.indiabix.com/aptitude/time-and-work/'],
+    ['Pipes and Cisterns', 'Medium', 'https://www.indiabix.com/aptitude/pipes-and-cisterns/', 'https://www.geeksforgeeks.org/quantitative-aptitude/pipes-and-cisterns/']
+  ],
+  'Ratio & Proportion': [
+    ['Ratio Basics', 'Easy', 'https://www.indiabix.com/aptitude/ratio-and-proportion/', 'https://www.indiabix.com/aptitude/ratio-and-proportion/'],
+    ['Direct and Inverse Proportion', 'Medium', 'https://www.indiabix.com/aptitude/ratio-and-proportion/', 'https://www.geeksforgeeks.org/quantitative-aptitude/ratio-and-proportion/']
+  ],
+  'Speed, Distance & Time': [
+    ['Relative Speed', 'Easy', 'https://www.indiabix.com/aptitude/time-and-distance/', 'https://www.indiabix.com/aptitude/time-and-distance/'],
+    ['Trains and Boats', 'Medium', 'https://www.indiabix.com/aptitude/problems-on-trains/', 'https://www.geeksforgeeks.org/quantitative-aptitude/problems-on-trains/']
+  ],
+  'Simple & Compound Interest': [
+    ['Simple Interest', 'Easy', 'https://www.indiabix.com/aptitude/simple-interest/', 'https://www.indiabix.com/aptitude/simple-interest/'],
+    ['Compound Interest', 'Medium', 'https://www.indiabix.com/aptitude/compound-interest/', 'https://www.indiabix.com/aptitude/compound-interest/']
+  ],
+  'Blood Relations': [
+    ['Family Tree Problems', 'Easy', 'https://www.indiabix.com/logical-reasoning/blood-relation-test/', 'https://www.indiabix.com/logical-reasoning/blood-relation-test/'],
+    ['Coded Relations', 'Medium', 'https://www.indiabix.com/logical-reasoning/blood-relation-test/', 'https://www.geeksforgeeks.org/reasoning-aptitude/blood-relations/']
+  ],
+  Syllogism: [
+    ['Statements and Conclusions', 'Easy', 'https://www.indiabix.com/logical-reasoning/syllogism/', 'https://www.indiabix.com/logical-reasoning/syllogism/'],
+    ['Venn Diagram Syllogisms', 'Medium', 'https://www.indiabix.com/logical-reasoning/syllogism/', 'https://www.geeksforgeeks.org/aptitude/logical-reasoning-syllogism/']
+  ],
+  'Direction Sense': [
+    ['Direction Test Basics', 'Easy', 'https://www.indiabix.com/logical-reasoning/direction-sense-test/', 'https://www.indiabix.com/logical-reasoning/direction-sense-test/'],
+    ['Shortest Distance and Direction', 'Medium', 'https://www.indiabix.com/logical-reasoning/direction-sense-test/', 'https://www.geeksforgeeks.org/reasoning-aptitude/direction-sense-test/']
+  ],
+  'Coding & Decoding': [
+    ['Letter Coding', 'Easy', 'https://www.indiabix.com/logical-reasoning/coding-decoding/', 'https://www.indiabix.com/logical-reasoning/coding-decoding/'],
+    ['Mixed Coding Patterns', 'Medium', 'https://www.indiabix.com/logical-reasoning/coding-decoding/', 'https://www.geeksforgeeks.org/reasoning-aptitude/coding-decoding/']
+  ],
+  'Seating Arrangement': [
+    ['Linear Seating Arrangement', 'Medium', 'https://www.indiabix.com/logical-reasoning/seating-arrangement/', 'https://www.indiabix.com/logical-reasoning/seating-arrangement/'],
+    ['Circular Seating Arrangement', 'Hard', 'https://www.indiabix.com/logical-reasoning/seating-arrangement/', 'https://www.geeksforgeeks.org/aptitude/seating-arrangement/']
+  ],
+  'Error Spotting': [
+    ['Subject-Verb Agreement', 'Easy', 'https://www.indiabix.com/verbal-ability/spotting-errors/', 'https://www.indiabix.com/verbal-ability/spotting-errors/'],
+    ['Tenses and Articles', 'Medium', 'https://www.indiabix.com/verbal-ability/spotting-errors/', 'https://www.geeksforgeeks.org/english-grammar/spotting-errors/']
+  ],
+  'Reading Comprehension': [
+    ['Main Idea and Inference', 'Medium', 'https://www.indiabix.com/verbal-ability/comprehension/', 'https://www.indiabix.com/verbal-ability/comprehension/'],
+    ['Passage-Based Questions', 'Hard', 'https://www.indiabix.com/verbal-ability/comprehension/', 'https://www.geeksforgeeks.org/reading-comprehension/']
+  ],
+  'Sentence Completion': [
+    ['Contextual Vocabulary', 'Easy', 'https://www.indiabix.com/verbal-ability/sentence-completion/', 'https://www.indiabix.com/verbal-ability/sentence-completion/'],
+    ['Logical Sentence Completion', 'Medium', 'https://www.indiabix.com/verbal-ability/sentence-completion/', 'https://www.geeksforgeeks.org/verbal-ability/sentence-completion/']
+  ],
+  'Synonyms & Antonyms': [
+    ['Common Synonyms', 'Easy', 'https://www.indiabix.com/verbal-ability/synonyms/', 'https://www.indiabix.com/verbal-ability/synonyms/'],
+    ['Contextual Antonyms', 'Medium', 'https://www.indiabix.com/verbal-ability/antonyms/', 'https://www.indiabix.com/verbal-ability/antonyms/']
+  ]
+};
+
 function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'All' }) {
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState(initialFilter);
   const [topics, setTopics] = useState([]);
   const [loadingTopics, setLoadingTopics] = useState(true);
+  const [selectedTopic, setSelectedTopic] = useState(null);
 
   useEffect(() => {
     if (initialQuery !== undefined) setQuery(initialQuery);
@@ -475,6 +539,7 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
   const problemsSolved = summary?.problemsSolved ?? 0;
   const todayMinutes = summary?.todayMinutes ?? 0;
   const overallPercent = summary?.overall ?? 0;
+  const selectedQuestions = selectedTopic ? (PRACTICE_QUESTIONS[selectedTopic] || []) : [];
 
   return (
     <section className="workspace-page">
@@ -490,6 +555,37 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
       </div>
       {loadingTopics ? (
         <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading topics…</span></div>
+      ) : selectedTopic ? (
+        <section className="dsa-question-page practice-question-page">
+          <button type="button" className="dsa-back-button" onClick={() => setSelectedTopic(null)}>
+            <ChevronLeft size={16} /> Back to practice topics
+          </button>
+          <div className="dsa-problems-panel">
+            <div className="dsa-problems-heading">
+              <div>
+                <span className="page-eyebrow">{topics.find((topic) => topic.title === selectedTopic)?.category || 'PRACTICE'}</span>
+                <h3>{selectedTopic} Questions</h3>
+                <p>Practice these placement questions, then review the linked solution.</p>
+              </div>
+              <span className="dsa-problem-count">{selectedQuestions.length} questions</span>
+            </div>
+            <div className="dsa-problems-table-wrap">
+              <table className="dsa-problems-table">
+                <thead><tr><th>Question</th><th>Difficulty</th><th>Problem Link</th><th>Solution</th></tr></thead>
+                <tbody>
+                  {selectedQuestions.map(([title, difficulty, problemUrl, solutionUrl]) => (
+                    <tr key={title}>
+                      <td><strong>{title}</strong></td>
+                      <td><span className={`dsa-difficulty ${difficulty.toLowerCase()}`}>{difficulty}</span></td>
+                      <td className="dsa-problem-links"><a href={problemUrl} target="_blank" rel="noreferrer">Open problem <ArrowUpRight size={13} /></a></td>
+                      <td className="dsa-problem-links"><a href={solutionUrl} target="_blank" rel="noreferrer">View solution <ArrowUpRight size={13} /></a></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       ) : (
         <div className="workspace-card-grid">
           {filteredTopics.map((topic) => {
@@ -508,7 +604,7 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
                 <div className="mini-progress"><i style={{ width: `${pct}%`, backgroundColor: topic.color }} /></div>
                 <div className="card-meta">
                   <span>{currentSolved} / {total} solved</span>
-                  <button type="button" onClick={() => actions.solveTopic(topic.itemId)}>Practice <ArrowRight size={14} /></button>
+                  <button type="button" onClick={() => setSelectedTopic(topic.title)}>Open questions <ChevronRight size={14} /></button>
                 </div>
               </article>
             );
@@ -668,17 +764,14 @@ function DsaPage({ summary, actions }) {
               </div>
               <div className="dsa-problems-table-wrap">
                 <table className="dsa-problems-table">
-                  <thead><tr><th>Problem</th><th>Difficulty</th><th>Topic</th><th>Links</th></tr></thead>
+                  <thead><tr><th>Problem</th><th>Difficulty</th><th>Problem Link</th><th>Solution</th></tr></thead>
                   <tbody>
                     {visibleQuestions.map(([topic, title, difficulty, slug, solutionSlug]) => (
                       <tr key={`${topic}-${slug}`}>
                         <td><strong>{title}</strong></td>
                         <td><span className={`dsa-difficulty ${difficulty.toLowerCase()}`}>{difficulty}</span></td>
-                        <td>{topic}</td>
-                        <td className="dsa-problem-links">
-                          <a href={`https://leetcode.com/problems/${slug}/`} target="_blank" rel="noreferrer">Problem <ArrowUpRight size={13} /></a>
-                          <a href={`https://neetcode.io/solutions/${solutionSlug}`} target="_blank" rel="noreferrer">Solution <ArrowUpRight size={13} /></a>
-                        </td>
+                        <td className="dsa-problem-links"><a href={`https://leetcode.com/problems/${slug}/`} target="_blank" rel="noreferrer">Open problem <ArrowUpRight size={13} /></a></td>
+                        <td className="dsa-problem-links"><a href={`https://neetcode.io/solutions/${solutionSlug}`} target="_blank" rel="noreferrer">View solution <ArrowUpRight size={13} /></a></td>
                       </tr>
                     ))}
                   </tbody>
