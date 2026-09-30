@@ -761,6 +761,10 @@
     box-shadow: var(--shadow-md);
   }
 
+  .notes-resource-card.clickable {
+    cursor: pointer;
+  }
+
   .notes-resource-top {
     display: flex;
     align-items: center;

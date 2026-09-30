@@ -840,7 +840,7 @@ function DsaPage({ summary, actions }) {
 }
 
 const NOTE_RESOURCES = [
-  { itemId: 'note-programming-languages', title: 'Programming Language', category: 'Programming', description: 'Reference notes for core programming languages and concepts.', color: '#635bff', driveUrl: '' },
+  { itemId: 'note-programming-languages', title: 'Programming Language', category: 'Programming', description: 'Reference notes for core programming languages and concepts.', color: '#635bff', driveUrl: 'https://drive.google.com/drive/folders/1zJTiVdk6sv8p5MvQ3byVgOGSQ2O-ZJyX' },
   { itemId: 'note-data-structures-algorithms', title: 'Data Structures and Algorithms', category: 'DSA', description: 'DSA concepts, patterns, and interview revision notes.', color: '#2563eb', driveUrl: '' },
   { itemId: 'note-aptitude', title: 'Aptitude', category: 'Aptitude', description: 'Formulas, shortcuts, and solved placement aptitude notes.', color: '#16a34a', driveUrl: '' },
   { itemId: 'note-reasoning', title: 'Reasoning', category: 'Reasoning', description: 'Logical reasoning methods, shortcuts, and practice notes.', color: '#f59e0b', driveUrl: '' },
@@ -875,14 +875,29 @@ function NotesPage({ summary, actions }) {
         <div className="notes-layout">
           <div className="notes-resource-grid">
             {resources.map((note) => (
-              <article className="notes-resource-card" key={note.itemId}>
+              <article
+                className={`notes-resource-card${note.driveUrl ? ' clickable' : ''}`}
+                key={note.itemId}
+                onClick={() => note.driveUrl && window.open(note.driveUrl, '_blank', 'noopener,noreferrer')}
+                onKeyDown={(event) => {
+                  if (note.driveUrl && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    window.open(note.driveUrl, '_blank', 'noopener,noreferrer');
+                  }
+                }}
+                role={note.driveUrl ? 'link' : undefined}
+                tabIndex={note.driveUrl ? 0 : undefined}
+              >
                 <div className="notes-resource-top">
                   <div className="content-icon" style={{ color: note.color, backgroundColor: `${note.color}18` }}><FileText size={21} /></div>
                   <button
                     type="button"
                     className={`icon-button${bookmarkedIds.has(note.itemId) ? ' active' : ''}`}
                     aria-label={`Bookmark ${note.title}`}
-                    onClick={() => actions.toggleBookmark({ itemId: note.itemId, itemType: 'note', title: note.title, category: note.category, source: 'Google Drive Notes' })}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      actions.toggleBookmark({ itemId: note.itemId, itemType: 'note', title: note.title, category: note.category, source: 'Google Drive Notes' });
+                    }}
                   >
                     <Bookmark size={18} fill={bookmarkedIds.has(note.itemId) ? 'currentColor' : 'none'} />
                   </button>
@@ -890,13 +905,7 @@ function NotesPage({ summary, actions }) {
                 <h3>{note.title}</h3>
                 <span className="notes-resource-category">{note.category}</span>
                 <p>{note.description}</p>
-                {note.driveUrl ? (
-                  <a className="note-open" href={note.driveUrl} target="_blank" rel="noreferrer">
-                    Open Drive note <ChevronRight size={15} />
-                  </a>
-                ) : (
-                  <span className="note-open disabled">Drive link coming soon</span>
-                )}
+                {note.driveUrl && <span className="note-open">Click to open notes <ChevronRight size={15} /></span>}
               </article>
             ))}
           </div>
