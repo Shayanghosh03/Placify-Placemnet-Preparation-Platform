@@ -1271,7 +1271,7 @@ p {
 .activity-calendar-months,
 .activity-calendar-grid {
   display: grid;
-  grid-template-columns: repeat(12, 14px);
+  grid-template-columns: repeat(53, 14px);
   gap: 4px;
   width: max-content;
 }
@@ -1314,6 +1314,11 @@ p {
 .activity-calendar-day.level-2 { background: #a9ddb5; }
 .activity-calendar-day.level-3 { background: #65bd78; }
 .activity-calendar-day.level-4 { background: #2f944b; }
+
+.activity-calendar-day.outside-year {
+  background: transparent;
+  pointer-events: none;
+}
 
 .activity-calendar-details {
   display: flex;

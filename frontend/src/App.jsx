@@ -1152,44 +1152,52 @@ function WorkspacePage({ tab, summary, actions, practiceQuery, practiceFilter, o
 
 function DailyActivityCalendar({ activityLog = [] }) {
   const today = new Date();
+  const year = today.getFullYear();
   const [selectedDate, setSelectedDate] = useState(() => today.toISOString().slice(0, 10));
   const activityByDate = Object.fromEntries(activityLog.map((entry) => [entry.date, entry]));
-  const calendarDays = Array.from({ length: 84 }, (_, index) => {
-    const date = new Date(today);
-    date.setDate(today.getDate() - (83 - index));
-    const dateKey = date.toISOString().slice(0, 10);
-    const activity = activityByDate[dateKey];
+  const firstDay = new Date(year, 0, 1);
+  const lastDay = new Date(year, 11, 31);
+  const calendarStart = new Date(firstDay);
+  calendarStart.setDate(firstDay.getDate() - firstDay.getDay());
+  const calendarEnd = new Date(lastDay);
+  calendarEnd.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
+  const calendarCells = [];
+  for (let date = new Date(calendarStart); date <= calendarEnd; date.setDate(date.getDate() + 1)) {
+    const cellDate = new Date(date);
+    const isCurrentYear = cellDate.getFullYear() === year;
+    const dateKey = cellDate.toISOString().slice(0, 10);
+    const activity = isCurrentYear ? activityByDate[dateKey] : null;
     const problems = Number(activity?.problemsSolved) || 0;
     const minutes = Number(activity?.minutesStudied) || 0;
     const score = problems + Math.round(minutes / 10);
-    const level = score === 0 ? 0 : score < 5 ? 1 : score < 12 ? 2 : score < 25 ? 3 : 4;
-    return { date, dateKey, activity, level };
+    const level = !isCurrentYear || score === 0 ? 0 : score < 5 ? 1 : score < 12 ? 2 : score < 25 ? 3 : 4;
+    calendarCells.push({ date: cellDate, dateKey, activity, level, isCurrentYear });
+  }
+  const selectedDay = calendarCells.find((day) => day.dateKey === selectedDate && day.isCurrentYear) || calendarCells.find((day) => day.dateKey === today.toISOString().slice(0, 10));
+  const weeks = calendarCells.length / 7;
+  const monthLabels = Array.from({ length: 12 }, (_, month) => {
+    const monthStart = new Date(year, month, 1);
+    const week = Math.floor((monthStart - calendarStart) / (7 * 86400000));
+    return { label: monthStart.toLocaleDateString(undefined, { month: 'short' }), week };
   });
-  const selectedDay = calendarDays.find((day) => day.dateKey === selectedDate) || calendarDays[calendarDays.length - 1];
-  const monthLabels = calendarDays.reduce((labels, day, index) => {
-    const isWeekStart = index % 7 === 0;
-    const previousMonth = index > 0 ? calendarDays[index - 1].date.getMonth() : -1;
-    if (isWeekStart && (index === 0 || day.date.getMonth() !== previousMonth)) {
-      labels.push({ label: day.date.toLocaleDateString(undefined, { month: 'short' }), week: index / 7 });
-    }
-    return labels;
-  }, []);
+  const activeDays = activityLog.filter((entry) => Number(entry.problemsSolved) > 0 || Number(entry.minutesStudied) > 0).length;
+  const totalSubmissions = activityLog.reduce((total, entry) => total + (Number(entry.problemsSolved) || 0), 0);
 
   return (
     <section className="dashboard-section-block activity-calendar-card">
       <div className="dashboard-section-heading">
         <div>
           <h2><CalendarDays size={18} /> Daily activity</h2>
-          <span>Track your practice and study consistency</span>
+          <span>{totalSubmissions.toLocaleString()} submissions in {year}</span>
         </div>
-        <span className="activity-calendar-total">{activityLog.length} active days</span>
+        <span className="activity-calendar-total">Active days: {activeDays}</span>
       </div>
       <div className="activity-calendar-body">
-        <div className="activity-calendar-months" aria-hidden="true">
+        <div className="activity-calendar-months" style={{ gridTemplateColumns: `repeat(${weeks}, 14px)` }} aria-hidden="true">
           {monthLabels.map(({ label, week }) => <span key={`${label}-${week}`} style={{ gridColumn: week + 1 }}>{label}</span>)}
         </div>
-        <div className="activity-calendar-grid" role="group" aria-label="Daily activity for the last 12 weeks">
-          {calendarDays.map((day) => (
+        <div className="activity-calendar-grid" style={{ gridTemplateColumns: `repeat(${weeks}, 14px)` }} role="group" aria-label={`Daily activity for ${year}`}>
+          {calendarCells.map((day) => day.isCurrentYear ? (
             <button
               type="button"
               key={day.dateKey}
@@ -1198,10 +1206,10 @@ function DailyActivityCalendar({ activityLog = [] }) {
               title={`${day.date.toLocaleDateString()}${day.activity ? `: ${day.activity.problemsSolved || 0} problems, ${day.activity.minutesStudied || 0} minutes` : ': No activity'}`}
               aria-label={`${day.date.toLocaleDateString()}${day.activity ? `, ${day.activity.problemsSolved || 0} problems solved and ${day.activity.minutesStudied || 0} minutes studied` : ', no activity'}`}
             />
-          ))}
+          ) : <span className="activity-calendar-day outside-year" key={day.dateKey} aria-hidden="true" />)}
         </div>
         <div className="activity-calendar-details">
-          <strong>{selectedDay.date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</strong>
+          <strong>{selectedDay?.date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</strong>
           <span>{selectedDay.activity ? `${selectedDay.activity.problemsSolved || 0} problems solved • ${selectedDay.activity.minutesStudied || 0} minutes studied` : 'No activity recorded'}</span>
         </div>
         <div className="activity-calendar-legend" aria-label="Activity intensity legend">
