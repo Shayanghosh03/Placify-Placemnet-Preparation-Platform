@@ -1957,6 +1957,23 @@ p {
   padding: 18px;
 }
 
+.progress-visual-reveal {
+  animation: progressVisualReveal 0.9s ease-out both;
+}
+
+@keyframes progressVisualReveal {
+  from {
+    opacity: 0.35;
+    transform: scale(0.94);
+    filter: saturate(0.25);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: saturate(1);
+  }
+}
+
 .progress-summary-card > span {
   display: block;
   color: var(--text-medium);
@@ -2080,6 +2097,26 @@ p {
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.activity-chart .activity-line-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: activityLineDraw 1s 0.12s ease-out forwards;
+}
+
+.activity-chart .activity-point-reveal {
+  opacity: 0;
+  animation: activityPointReveal 0.22s 1s ease-out forwards;
+}
+
+@keyframes activityLineDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes activityPointReveal {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .activity-chart circle {

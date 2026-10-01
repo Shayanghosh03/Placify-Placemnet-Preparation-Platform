@@ -1326,7 +1326,7 @@ function ProgressPage({ summary }) {
   return (
     <section className="progress-page">
       <div className="progress-summary-grid">
-        <div className="progress-summary-card"><span>Overall Progress</span><div className="progress-summary-ring" style={{ background: summaryRingBackground }}><strong>{summary?.overall ?? 0}%</strong><small>Overall</small></div></div>
+        <div className="progress-summary-card"><span>Overall Progress</span><div className="progress-summary-ring progress-visual-reveal" style={{ background: summaryRingBackground }}><strong>{summary?.overall ?? 0}%</strong><small>Overall</small></div></div>
         <div className="progress-summary-card"><span>Problems Solved</span><strong className="progress-big-number">{summary?.problemsSolved ?? 0}</strong><small className="progress-positive">+{last7.reduce((s, d) => s + d.problemsSolved, 0)} this week</small></div>
         <div className="progress-summary-card"><span>Quizzes Taken</span><strong className="progress-big-number">{summary?.quizzesTaken ?? 0}</strong><small className="progress-positive">keep going!</small></div>
         <div className="progress-summary-card"><span>Study Streak</span><strong className="progress-big-number">{summary?.studyStreakDays ?? 0} Days</strong><small className="progress-purple">Best: {summary?.bestStreakDays ?? 0} days</small></div>
@@ -1348,8 +1348,8 @@ function ProgressPage({ summary }) {
             <svg viewBox="0 0 500 150" role="img" aria-label="Weekly activity trend">
               <defs><linearGradient id="activityFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#635bff" stopOpacity=".22" /><stop offset="100%" stopColor="#635bff" stopOpacity="0" /></linearGradient></defs>
               {areaPath && <path className="activity-area" d={areaPath} />}
-              {svgPoints.length > 1 && <polyline points={polylineStr} />}
-              {svgPoints.map(([cx, cy]) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="4" />)}
+              {svgPoints.length > 1 && <polyline className="activity-line-draw" pathLength="1" points={polylineStr} />}
+              {svgPoints.map(([cx, cy]) => <circle className="activity-point-reveal" key={`${cx}-${cy}`} cx={cx} cy={cy} r="4" />)}
             </svg>
             <div className="activity-days">
               {last7.map((d) => {
