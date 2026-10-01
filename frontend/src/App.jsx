@@ -1247,10 +1247,27 @@ function ProgressPage({ summary }) {
     ? `radial-gradient(circle, #ffffff 57%, transparent 58%), conic-gradient(${summaryRingSegments.join(', ')}, #e5edf8 ${summaryRingStop.toFixed(2)}% 100%)`
     : 'radial-gradient(circle, #ffffff 57%, transparent 58%), #e5edf8';
 
-  // Build weekly activity from activityLog (last 7 entries)
+  // Build a complete seven-day series so the chart remains visible even when
+  // the user has activity on only one day.
   const activityLog = summary?.activityLog || [];
-  const last7 = [...activityLog].sort((a, b) => a.date.localeCompare(b.date)).slice(-7);
-  const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const activityByDate = Object.fromEntries(activityLog.map((entry) => [entry.date, entry]));
+  const today = new Date();
+  const last7 = Array.from({ length: 7 }, (_value, index) => {
+    const date = new Date(today);
+    date.setHours(12, 0, 0, 0);
+    date.setDate(today.getDate() - (6 - index));
+    const dateKey = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0')
+    ].join('-');
+    return activityByDate[dateKey] || {
+      date: dateKey,
+      problemsSolved: 0,
+      minutesStudied: 0,
+      topicsCompleted: 0
+    };
+  });
 
   // Use solved-problem totals and category percentages from the live summary.
   const rings = DASHBOARD_CATEGORIES.map((cat) => {
@@ -1261,10 +1278,10 @@ function ProgressPage({ summary }) {
   });
 
   // Build SVG polyline from activityLog
-  const maxProblems = Math.max(1, ...last7.map((d) => d.problemsSolved));
+  const maxProblems = Math.max(1, ...last7.map((d) => Number(d.problemsSolved) || 0));
   const svgPoints = last7.map((d, i) => {
     const x = 20 + i * Math.round(475 / Math.max(1, last7.length - 1));
-    const y = 135 - Math.round((d.problemsSolved / maxProblems) * 107);
+    const y = 135 - Math.round(((Number(d.problemsSolved) || 0) / maxProblems) * 107);
     return [String(x), String(y)];
   });
   const polylineStr = svgPoints.map(([x, y]) => `${x},${y}`).join(' ');
@@ -1301,9 +1318,10 @@ function ProgressPage({ summary }) {
               {svgPoints.map(([cx, cy]) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="4" />)}
             </svg>
             <div className="activity-days">
-              {(last7.length > 0 ? last7 : Array(7).fill(null)).map((d, i) => (
-                <span key={i}>{d ? dayLabels[new Date(d.date).getDay()] : dayLabels[i]}</span>
-              ))}
+              {last7.map((d) => {
+                const date = new Date(`${d.date}T12:00:00`);
+                return <span key={d.date}>{date.toLocaleDateString(undefined, { weekday: 'short' })}</span>;
+              })}
             </div>
           </div>
         </section>
