@@ -1172,7 +1172,6 @@ function DailyActivityCalendar({ activityLog = [] }) {
     const week = Math.floor((monthStart - calendarStart) / (7 * 86400000));
     return { label: monthStart.toLocaleDateString(undefined, { month: 'short' }), week };
   });
-  const monthStartWeeks = new Set(monthLabels.map(({ week }) => week));
   const activeDays = activityLog.filter((entry) => Number(entry.problemsSolved) > 0 || Number(entry.minutesStudied) > 0).length;
   const totalSubmissions = activityLog.reduce((total, entry) => total + (Number(entry.problemsSolved) || 0), 0);
 
@@ -1187,14 +1186,14 @@ function DailyActivityCalendar({ activityLog = [] }) {
       </div>
       <div className="activity-calendar-body">
         <div className="activity-calendar-months" style={{ gridTemplateColumns: `repeat(${weeks}, 14px)` }} aria-hidden="true">
-          {monthLabels.map(({ label, week }) => <span className={week > 0 ? 'month-label-start' : ''} key={`${label}-${week}`} style={{ gridColumn: week + 1 }}>{label}</span>)}
+          {monthLabels.map(({ label, week }) => <span key={`${label}-${week}`} style={{ gridColumn: week + 1 }}>{label}</span>)}
         </div>
         <div className="activity-calendar-grid" style={{ gridTemplateColumns: `repeat(${weeks}, 14px)` }} role="group" aria-label={`Daily activity for ${year}`}>
-          {calendarCells.map((day, index) => day.isCurrentYear ? (
+          {calendarCells.map((day) => day.isCurrentYear ? (
             <button
               type="button"
               key={day.dateKey}
-              className={`activity-calendar-day level-${day.level}${monthStartWeeks.has(Math.floor(index / 7)) ? ' month-start' : ''}${day.dateKey === selectedDate ? ' selected' : ''}`}
+              className={`activity-calendar-day level-${day.level}${day.dateKey === selectedDate ? ' selected' : ''}`}
               onClick={() => setSelectedDate(day.dateKey)}
               title={`${day.date.toLocaleDateString()}${day.activity ? `: ${day.activity.problemsSolved || 0} problems, ${day.activity.minutesStudied || 0} minutes` : ': No activity'}`}
               aria-label={`${day.date.toLocaleDateString()}${day.activity ? `, ${day.activity.problemsSolved || 0} problems solved and ${day.activity.minutesStudied || 0} minutes studied` : ', no activity'}`}
