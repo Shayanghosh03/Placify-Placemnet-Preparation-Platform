@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import UserAvatar from './UserAvatar';
+import { api } from '../api.js';
 import {
   User,
   Mail,
@@ -56,7 +57,7 @@ const compressImage = (file, maxWidth = 380, maxHeight = 380, quality = 0.85) =>
   });
 };
 
-export default function ProfileSettings({ user, onUpdateUser, onBack }) {
+export default function ProfileSettings({ user, onUpdateUser, onBack, onAccountDeleted }) {
   const fileInputRef = useRef(null);
   const storageKey = `placify_custom_avatar_${user?.id || 'current'}`;
 
@@ -76,6 +77,7 @@ export default function ProfileSettings({ user, onUpdateUser, onBack }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [hasLocalStorageAvatar, setHasLocalStorageAvatar] = useState(false);
   const [uploadNotice, setUploadNotice] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const isGoogle = user?.provider === 'google' || Boolean(user?.googleId);
 
@@ -214,6 +216,30 @@ export default function ProfileSettings({ user, onUpdateUser, onBack }) {
     });
     setSaveSuccess(false);
     setErrorMessage('');
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'Permanently delete your Placify account and all of its progress data? This action cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    setIsDeletingAccount(true);
+    setErrorMessage('');
+    try {
+      await api.delete('/auth/account');
+      try {
+        window.localStorage.removeItem(storageKey);
+        window.localStorage.removeItem('placify_custom_avatar_current');
+      } catch {
+        // Ignore localStorage access restrictions.
+      }
+      onAccountDeleted();
+    } catch (error) {
+      setErrorMessage(error.message || 'Could not delete your account. Please try again.');
+    } finally {
+      setIsDeletingAccount(false);
+    }
   };
 
   return (
@@ -481,6 +507,22 @@ export default function ProfileSettings({ user, onUpdateUser, onBack }) {
           </button>
         </div>
       </form>
+
+      <section className="profile-danger-zone">
+        <div>
+          <h3>Delete account</h3>
+          <p>Permanently remove your account, profile, and all saved progress data.</p>
+        </div>
+        <button
+          type="button"
+          className="profile-delete-account-btn"
+          onClick={handleDeleteAccount}
+          disabled={isDeletingAccount}
+        >
+          <Trash2 size={16} />
+          <span>{isDeletingAccount ? 'Deleting Account...' : 'Delete Account'}</span>
+        </button>
+      </section>
     </div>
   );
 }

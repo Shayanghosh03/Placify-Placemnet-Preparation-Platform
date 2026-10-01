@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import passport from 'passport';
 import User from '../models/User.js';
+import Progress from '../models/Progress.js';
 import { requireAuth } from '../middleware/auth.js';
 import { clearAuthCookie, createToken, setAuthCookie } from '../utils/auth.js';
 import { env } from '../config/env.js';
@@ -122,6 +123,17 @@ router.put('/profile', requireAuth, async (req, res, next) => {
 
     await req.user.save();
     return res.json({ user: publicUser(req.user), message: 'Profile updated successfully' });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.delete('/account', requireAuth, async (req, res, next) => {
+  try {
+    await Progress.deleteOne({ user: req.user._id });
+    await req.user.deleteOne();
+    clearAuthCookie(res);
+    return res.status(204).send();
   } catch (error) {
     return next(error);
   }

@@ -106,10 +106,6 @@ function App() {
     fetchUser();
   }, []);
 
-  if (authLoading) {
-    return <div className="auth-loading" role="status" aria-live="polite">Loading your workspace…</div>;
-  }
-
   const persistView = (view) => {
     const isHome = view === 'home';
     setHomeViewOverride(isHome);
@@ -140,6 +136,18 @@ function App() {
       persistView('home');
       handleTabChange('Home');
     }
+  };
+
+  const handleAccountDeleted = () => {
+    setIsLoggedIn(false);
+    setUser(null);
+    try {
+      window.localStorage.removeItem('placify-dashboard-tab');
+    } catch {
+      // ignore
+    }
+    persistView('home');
+    handleTabChange('Home');
   };
 
   const handleGoHome = () => {
@@ -181,7 +189,7 @@ function App() {
     handleTabChange('Home');
   };
 
-  if (isLoggedIn && !homeViewOverride) {
+  if ((isLoggedIn || (authLoading && !homeViewOverride)) && !homeViewOverride) {
     return (
       <Dashboard
         user={user}
@@ -882,14 +890,18 @@ function DsaPage({ summary, actions }) {
           </section>
         ) : (
           <div className="dsa-topic-card-grid">
-            {topicCards.map(([label, questionTopic, progressId, color, description]) => {
+            {topicCards.map(([label, questionTopic, progressId, color, description], cardIndex) => {
               const topic = dsaTopics.find((item) => item.itemId === progressId);
               const topicProgress = (summary?.topics || []).find((t) => t.topicId === progressId);
               const currentSolved = topicProgress !== undefined ? topicProgress.solved : (topic?.solved || 0);
               const total = topic?.totalProblems || DSA_PROBLEMS[questionTopic]?.length || 0;
               const pct = total > 0 ? Math.round((currentSolved / total) * 100) : 0;
               return (
-                <article className={`content-card dsa-card${selectedTopic === questionTopic ? ' selected' : ''}`} key={label}>
+                <article
+                  className={`content-card dsa-card${selectedTopic === questionTopic ? ' selected' : ''}`}
+                  key={label}
+                  style={{ '--dsa-card-delay': `${Math.min(cardIndex, 8) * 55}ms` }}
+                >
                   <div className="content-card-top">
                     <span className="content-icon" style={{ color, backgroundColor: `${color}18` }}><Code2 size={19} /></span>
                     <span className="topic-count">{currentSolved} / {total}</span>
@@ -1718,6 +1730,7 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
           <ProfileSettings
             user={user}
             onUpdateUser={setUser}
+            onAccountDeleted={onAccountDeleted}
             onBack={() => handleSelectTab('Dashboard')}
           />
         ) : (dashboardTab === 'Dashboard' || dashboardTab === 'Overview') ? (
@@ -1919,8 +1932,8 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
                         }
                         try {
                           setGoalError('');
-                          await actions.addGoal(newGoalLabel.trim(), newGoalCategory);
                           setNewGoalLabel('');
+                          await actions.addGoal(newGoalLabel.trim(), newGoalCategory);
                         } catch (error) {
                           setGoalError(error.message);
                         }
@@ -1945,12 +1958,26 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
                         <div className="dashboard-loading-state"><div className="dashboard-spinner" /></div>
                       ) : goals.map((goal, idx) => (
                         <div className={`daily-goal-item${goal.completed ? ' complete' : ''}`} key={`${goal.label}-${idx}`}>
-                          <button type="button" className="daily-goal-toggle" onClick={() => actions.toggleGoal(idx, !goal.completed)} aria-label={`${goal.completed ? 'Mark' : 'Complete'} ${goal.label}`}>
+                          <button type="button" className="daily-goal-toggle" onClick={async () => {
+                            try {
+                              setGoalError('');
+                              await actions.toggleGoal(idx, !goal.completed);
+                            } catch (error) {
+                              setGoalError(error.message);
+                            }
+                          }} aria-label={`${goal.completed ? 'Mark' : 'Complete'} ${goal.label}`}>
                             <CheckCircle2 size={19} />
                           </button>
                           <span><strong>{goal.label}</strong><small>{goal.category}</small></span>
                           {goal.completed && <em>Done</em>}
-                          <button type="button" className="daily-goal-remove" onClick={() => actions.removeGoal(idx)} aria-label={`Remove ${goal.label}`}><X size={14} /></button>
+                          <button type="button" className="daily-goal-remove" onClick={async () => {
+                            try {
+                              setGoalError('');
+                              await actions.removeGoal(idx);
+                            } catch (error) {
+                              setGoalError(error.message);
+                            }
+                          }} aria-label={`Remove ${goal.label}`}><X size={14} /></button>
                         </div>
                       ))}
                     </div>

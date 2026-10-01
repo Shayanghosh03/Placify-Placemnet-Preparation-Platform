@@ -507,6 +507,10 @@
     margin-bottom: 26px;
   }
 
+  .dsa-banner {
+    animation: dsaBannerReveal 0.5s ease both;
+  }
+
   .dsa-banner h3,
   .mock-feature h3 {
     font-size: 1.2rem;
@@ -567,6 +571,15 @@
     display: flex;
     min-height: 235px;
     flex-direction: column;
+    animation: dsaCardReveal 0.5s ease both;
+    animation-delay: var(--dsa-card-delay, 0ms);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .dsa-card:hover {
+    transform: translateY(-5px);
+    border-color: #c4b5fd;
+    box-shadow: 0 12px 28px rgba(99, 91, 255, 0.12);
   }
 
   .dsa-card.selected {
@@ -586,8 +599,19 @@
     margin-top: auto;
   }
 
+  .dsa-card .mini-progress i {
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: dsaProgressReveal 0.8s 0.25s ease-out both;
+  }
+
   .dsa-card .card-meta button {
     white-space: nowrap;
+    transition: gap 0.2s ease, color 0.2s ease;
+  }
+
+  .dsa-card .card-meta button:hover {
+    gap: 8px;
   }
 
   .dsa-problems-panel {
@@ -601,6 +625,21 @@
 
   .dsa-question-page {
     animation: workspaceReveal 0.3s ease both;
+  }
+
+  @keyframes dsaBannerReveal {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes dsaCardReveal {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes dsaProgressReveal {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
   }
 
   .dsa-question-page .dsa-problems-panel {

@@ -17,6 +17,11 @@ function reducer(state, action) {
       return { ...state, loading: false, summary: action.payload };
     case 'SUMMARY_UPDATED':
       return { ...state, summary: action.payload, content: {} };
+    case 'SUMMARY_PATCHED':
+      return {
+        ...state,
+        summary: state.summary ? { ...state.summary, ...action.payload } : state.summary
+      };
     case 'CONTENT_LOADED':
       return { ...state, content: { ...state.content, [action.key]: action.payload } };
     case 'ERROR':
@@ -94,45 +99,90 @@ export function useDashboard() {
   }, []);
 
   const toggleGoal = useCallback(async (index, completed) => {
+    const previousCompleted = state.summary?.dailyGoals?.[index]?.completed;
+    if (previousCompleted === undefined) return;
+    dispatch({
+      type: 'SUMMARY_PATCHED',
+      payload: {
+        dailyGoals: state.summary.dailyGoals.map((goal, goalIndex) => (
+          goalIndex === index ? { ...goal, completed } : goal
+        ))
+      }
+    });
     try {
       const { summary } = await api.progress.toggleGoal(index, completed);
       if (isMounted.current) dispatch({ type: 'SUMMARY_UPDATED', payload: summary });
     } catch (err) {
       console.error('toggleGoal failed:', err.message);
+      if (isMounted.current) {
+        dispatch({
+          type: 'SUMMARY_PATCHED',
+          payload: {
+            dailyGoals: state.summary.dailyGoals.map((goal, goalIndex) => (
+              goalIndex === index ? { ...goal, completed: previousCompleted } : goal
+            ))
+          }
+        });
+      }
+      throw err;
     }
-  }, []);
+  }, [state.summary]);
 
   const addGoal = useCallback(async (label, category) => {
+    const previousGoals = state.summary?.dailyGoals || [];
+    const optimisticGoal = { label, category, completed: false };
+    dispatch({
+      type: 'SUMMARY_PATCHED',
+      payload: { dailyGoals: [...previousGoals, optimisticGoal] }
+    });
     try {
       const { summary } = await api.progress.addGoal(label, category);
       if (isMounted.current) dispatch({ type: 'SUMMARY_UPDATED', payload: summary });
     } catch (err) {
       console.error('addGoal failed:', err.message);
+      if (isMounted.current) dispatch({ type: 'SUMMARY_PATCHED', payload: { dailyGoals: previousGoals } });
       throw err;
     }
-  }, []);
+  }, [state.summary]);
 
   const removeGoal = useCallback(async (index) => {
+    const previousGoals = state.summary?.dailyGoals || [];
+    if (!previousGoals[index]) return;
+    dispatch({
+      type: 'SUMMARY_PATCHED',
+      payload: { dailyGoals: previousGoals.filter((_goal, goalIndex) => goalIndex !== index) }
+    });
     try {
       const { summary } = await api.progress.removeGoal(index);
       if (isMounted.current) dispatch({ type: 'SUMMARY_UPDATED', payload: summary });
     } catch (err) {
       console.error('removeGoal failed:', err.message);
+      if (isMounted.current) dispatch({ type: 'SUMMARY_PATCHED', payload: { dailyGoals: previousGoals } });
       throw err;
     }
-  }, []);
+  }, [state.summary]);
 
   const toggleBookmark = useCallback(async (data) => {
+    const previousBookmarks = state.summary?.bookmarks || [];
+    const isBookmarked = previousBookmarks.some((bookmark) => bookmark.itemId === data.itemId);
+    const nextBookmarks = isBookmarked
+      ? previousBookmarks.filter((bookmark) => bookmark.itemId !== data.itemId)
+      : [...previousBookmarks, { ...data, savedAt: new Date().toISOString() }];
+    dispatch({ type: 'SUMMARY_PATCHED', payload: { bookmarks: nextBookmarks } });
     try {
       const result = await api.progress.toggleBookmark(data);
-      // Refresh summary to get updated bookmarks array
-      const summary = await api.progress.getSummary();
-      if (isMounted.current) dispatch({ type: 'SUMMARY_UPDATED', payload: summary });
+      if (isMounted.current && result?.bookmarks) {
+        dispatch({ type: 'SUMMARY_PATCHED', payload: { bookmarks: result.bookmarks } });
+      }
       return result;
     } catch (err) {
       console.error('toggleBookmark failed:', err.message);
+      if (isMounted.current) {
+        dispatch({ type: 'SUMMARY_PATCHED', payload: { bookmarks: previousBookmarks } });
+      }
+      throw err;
     }
-  }, []);
+  }, [state.summary]);
 
   return {
     ...state,
