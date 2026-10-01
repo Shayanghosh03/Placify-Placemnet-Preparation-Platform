@@ -424,7 +424,7 @@ function App() {
                           ['DSA / LeetCode', '40%', '#db2777']
                         ].map(([label, value, color]) => (
                           <div className="subject-progress-row" key={label}>
-                            <span>{label}</span><div><i style={{ width: value, backgroundColor: color }} /></div><strong>{value}</strong>
+                            <span>{label}</span><div><i className="progress-bar-fill-animation" style={{ width: value, backgroundColor: color }} /></div><strong>{value}</strong>
                           </div>
                         ))}
                       </section>
@@ -451,7 +451,7 @@ function App() {
                             ['8', 'Verbal', '63%', '#10b981'],
                             ['5', 'DSA', '63%', '#db2777']
                           ].map(([count, label, percent, color]) => (
-                            <div className="topic-ring-item" key={label}><div className="topic-ring" style={{ '--ring-color': color, '--ring-progress': percent }}><strong>{count}</strong><small>Topics</small></div><span>{label}</span><b>{percent}</b></div>
+                            <div className="topic-ring-item" key={label}><div className="topic-ring progress-color-reveal" style={{ '--ring-color': color, '--ring-progress': percent }}><strong>{count}</strong><small>Topics</small></div><span>{label}</span><b>{percent}</b></div>
                           ))}
                         </div>
                       </section>
@@ -985,6 +985,53 @@ const MOCK_TEST_FALLBACKS = [
   { itemId: 'mock-wipro-elite', title: 'Wipro Elite NLTH', category: 'Aptitude', difficulty: 'Medium', totalProblems: 25, duration: '28 min', color: '#16a34a' }
 ];
 
+const MOCK_TEST_QUESTIONS = {
+  'mock-tcs-nqt-quant': [
+    { id: 'tcs-1', section: 'Aptitude', type: 'mcq', text: 'A product marked at ₹800 is sold at a 15% discount. What is its selling price?', options: ['₹660', '₹680', '₹700', '₹720'], answer: [1] },
+    { id: 'tcs-2', section: 'Aptitude', type: 'mcq', text: 'A can complete a task in 12 days and B in 18 days. How long will they take together?', options: ['6 days', '7.2 days', '8 days', '9 days'], answer: [1] },
+    { id: 'tcs-3', section: 'Reasoning', type: 'mcq', text: 'Find the next number: 3, 8, 15, 24, ?', options: ['30', '32', '35', '38'], answer: [1] },
+    { id: 'tcs-4', section: 'Verbal Ability', type: 'msq', text: 'Select the sentences with correct subject-verb agreement.', options: ['The list of items is on the desk.', 'Neither of the answers are correct.', 'Each of the players has a locker.', 'The news are encouraging.'], answer: [0, 2] }
+  ],
+  'mock-infosys-foundation': [
+    { id: 'inf-1', section: 'Aptitude', type: 'mcq', text: 'A train travels 360 km in 4.5 hours. What is its average speed?', options: ['72 km/h', '80 km/h', '84 km/h', '90 km/h'], answer: [1] },
+    { id: 'inf-2', section: 'Reasoning', type: 'mcq', text: 'If CODE is written as DPEF, how is DATA written?', options: ['EBUB', 'EATB', 'DBUZ', 'FCVB'], answer: [0] },
+    { id: 'inf-3', section: 'Reasoning', type: 'msq', text: 'Which numbers are prime?', options: ['21', '29', '31', '39'], answer: [1, 2] },
+    { id: 'inf-4', section: 'Verbal Ability', type: 'mcq', text: 'Choose the closest meaning of “concise”.', options: ['Confusing', 'Brief and clear', 'Detailed', 'Emotional'], answer: [1] }
+  ],
+  'mock-accenture-cognitive': [
+    { id: 'acc-1', section: 'Reasoning', type: 'mcq', text: 'A person walks 5 km north, then 3 km east. In which direction are they from the starting point?', options: ['North-west', 'South-east', 'North-east', 'South-west'], answer: [2] },
+    { id: 'acc-2', section: 'Reasoning', type: 'msq', text: 'Which pairs are antonyms?', options: ['Expand — Contract', 'Ancient — Modern', 'Rapid — Swift', 'Accept — Receive'], answer: [0, 1] },
+    { id: 'acc-3', section: 'Aptitude', type: 'mcq', text: 'What is 20% of 250?', options: ['25', '40', '50', '60'], answer: [2] },
+    { id: 'acc-4', section: 'Verbal Ability', type: 'mcq', text: 'Choose the grammatically correct sentence.', options: ['She have completed the work.', 'She has completed the work.', 'She having completed the work.', 'She complete the work.'], answer: [1] }
+  ],
+  'mock-wipro-elite': [
+    { id: 'wip-1', section: 'Aptitude', type: 'mcq', text: 'The ratio of boys to girls is 3:2. If there are 25 students, how many are girls?', options: ['8', '10', '12', '15'], answer: [1] },
+    { id: 'wip-2', section: 'Reasoning', type: 'mcq', text: 'Complete the series: AZ, BY, CX, ?', options: ['DW', 'EV', 'DU', 'EW'], answer: [0] },
+    { id: 'wip-3', section: 'Verbal Ability', type: 'msq', text: 'Select the correctly spelt words.', options: ['Separate', 'Occasion', 'Necessary', 'Recieve'], answer: [0, 1, 2] },
+    { id: 'wip-4', section: 'Verbal Ability', type: 'mcq', text: 'Choose the synonym of “abundant”.', options: ['Scarce', 'Plentiful', 'Tiny', 'Difficult'], answer: [1] }
+  ],
+  'mock-placement-readiness': [
+    { id: 'ready-1', section: 'Aptitude', type: 'mcq', text: 'If 5 pens cost ₹75, what is the cost of 8 pens?', options: ['₹100', '₹110', '₹120', '₹125'], answer: [2] },
+    { id: 'ready-2', section: 'Reasoning', type: 'mcq', text: 'What comes next: 2, 6, 12, 20, ?', options: ['28', '30', '32', '36'], answer: [1] },
+    { id: 'ready-3', section: 'Verbal Ability', type: 'msq', text: 'Select the words that are nouns.', options: ['Honesty', 'Run', 'Teacher', 'Beautiful'], answer: [0, 2] },
+    { id: 'ready-4', section: 'Verbal Ability', type: 'mcq', text: 'Choose the correct completion: “The interview starts ___ 10 AM.”', options: ['in', 'on', 'at', 'by'], answer: [2] }
+  ]
+};
+
+function formatMockTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+function calculateMockResult(test, answers) {
+  const correct = test.questions.reduce((total, question, index) => {
+    const selected = [...(answers[index] || [])].sort((a, b) => a - b);
+    const expected = [...question.answer].sort((a, b) => a - b);
+    return total + (selected.length === expected.length && selected.every((answer, position) => answer === expected[position]) ? 1 : 0);
+  }, 0);
+  return { test, correct, total: test.questions.length, score: Math.round((correct / test.questions.length) * 100) };
+}
+
 function NotesPage({ summary, actions }) {
   const [notes, setNotes] = useState(NOTE_RESOURCES);
   const [loading, setLoading] = useState(true);
@@ -1057,6 +1104,11 @@ function NotesPage({ summary, actions }) {
 function MockTestsPage({ summary, actions }) {
   const [tests, setTests] = useState(MOCK_TEST_FALLBACKS);
   const [loading, setLoading] = useState(true);
+  const [activeTest, setActiveTest] = useState(null);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [result, setResult] = useState(null);
+  const [secondsLeft, setSecondsLeft] = useState(0);
 
   useEffect(() => {
     setLoading(true);
@@ -1070,6 +1122,76 @@ function MockTestsPage({ summary, actions }) {
   const featured = tests.find((t) => t.itemId === 'mock-placement-readiness');
   const restTests = tests.filter((t) => t.itemId !== 'mock-placement-readiness');
 
+  useEffect(() => {
+    if (!activeTest || result) return undefined;
+    if (secondsLeft <= 0) {
+      if (secondsLeft === 0) setResult(calculateMockResult(activeTest, answers));
+      return undefined;
+    }
+    const timer = window.setInterval(() => setSecondsLeft((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [activeTest, answers, result, secondsLeft]);
+
+  const startTest = (test) => {
+    const questions = MOCK_TEST_QUESTIONS[test.itemId] || [];
+    setActiveTest({ ...test, questions });
+    setCurrentQuestion(0);
+    setAnswers({});
+    setResult(null);
+    setSecondsLeft(Math.max(60, questions.length * 90));
+  };
+
+  const chooseAnswer = (optionIndex, type) => {
+    setAnswers((previous) => {
+      const selected = previous[currentQuestion] || [];
+      const next = type === 'msq'
+        ? selected.includes(optionIndex) ? selected.filter((index) => index !== optionIndex) : [...selected, optionIndex]
+        : [optionIndex];
+      return { ...previous, [currentQuestion]: next };
+    });
+  };
+
+  if (result) {
+    return (
+      <section className="workspace-page mock-result">
+        <div className="mock-result-card"><Trophy size={38} /><span className="page-eyebrow">TEST COMPLETE</span><h2>{result.score}%</h2><p>You answered {result.correct} of {result.total} questions correctly.</p><div className="mock-result-actions"><button type="button" className="btn btn-primary" onClick={() => startTest(result.test)}>Try again</button><button type="button" className="btn btn-outline-demo" onClick={() => { setResult(null); setActiveTest(null); }}>Back to tests</button></div></div>
+      </section>
+    );
+  }
+
+  if (activeTest) {
+    const question = activeTest.questions[currentQuestion];
+    const selected = answers[currentQuestion] || [];
+    if (!question) return null;
+    return (
+      <section className="workspace-page mock-runner">
+        <div className="mock-runner-header">
+          <div><span className="page-eyebrow">{activeTest.category.toUpperCase()} MOCK TEST</span><h2>{activeTest.title}</h2><p>Question {currentQuestion + 1} of {activeTest.questions.length}</p></div>
+          <div className="mock-timer"><span>Time left</span><strong>{formatMockTime(secondsLeft)}</strong></div>
+        </div>
+        <div className="mock-question-card">
+          <div className="mock-question-meta"><span>{question.section}</span><strong>{question.type === 'msq' ? 'Select all correct answers' : 'Select one answer'}</strong></div>
+          <h3>{question.text}</h3>
+          <div className="mock-options">
+            {question.options.map((option, index) => (
+              <label className={`mock-option${selected.includes(index) ? ' selected' : ''}`} key={option}>
+                <input type={question.type === 'msq' ? 'checkbox' : 'radio'} name={`question-${question.id}`} checked={selected.includes(index)} onChange={() => chooseAnswer(index, question.type)} />
+                <span>{option}</span>
+              </label>
+            ))}
+          </div>
+          <div className="mock-runner-actions">
+            <button type="button" className="btn btn-outline-demo" onClick={() => setCurrentQuestion((value) => Math.max(0, value - 1))} disabled={currentQuestion === 0}>Previous</button>
+            {currentQuestion < activeTest.questions.length - 1
+              ? <button type="button" className="btn btn-primary" onClick={() => setCurrentQuestion((value) => value + 1)}>Next <ArrowRight size={16} /></button>
+              : <button type="button" className="btn btn-primary" onClick={() => setResult(calculateMockResult(activeTest, answers))}>Submit test <CheckCircle2 size={16} /></button>}
+          </div>
+        </div>
+        <button type="button" className="mock-exit-button" onClick={() => setActiveTest(null)}>Exit test</button>
+      </section>
+    );
+  }
+
   return (
     <section className="workspace-page">
       <WorkspaceHeader compact action={<div className="workspace-score"><Trophy size={18} /><span><strong>Best score: {bestScore}</strong><small>+8% this month</small></span></div>} />
@@ -1079,12 +1201,12 @@ function MockTestsPage({ summary, actions }) {
             <span className="page-eyebrow">COMING SOON</span>
             <h3>{featured.title}</h3>
             <p>{featured.totalProblems} mixed questions are being prepared to show you exactly where to focus next.</p>
-            <button type="button" className="btn btn-primary" disabled>Coming soon <ArrowRight size={16} /></button>
+            <button type="button" className="btn btn-primary" onClick={() => startTest(featured)}>Start test <ArrowRight size={16} /></button>
           </div>
           <div className="mock-feature-visual"><Target size={32} /><strong>SOON</strong><span>assessment engine</span></div>
         </div>
       )}
-      <h3 className="workspace-subheading">Company-specific tests <span className="mock-coming-badge">Coming soon</span></h3>
+      <h3 className="workspace-subheading">Company-specific tests</h3>
       <div className="mock-list">
           {restTests.map((test) => (
             <article className="mock-row" key={test.itemId}>
@@ -1093,8 +1215,8 @@ function MockTestsPage({ summary, actions }) {
                 <h3>{test.title}</h3>
                 <p>{test.totalProblems} questions <span>•</span> {test.duration} <span>•</span> {test.difficulty}</p>
               </div>
-              <span className="mock-best mock-coming-text">Coming soon</span>
-              <button type="button" className="btn btn-small" disabled>Coming soon <ChevronRight size={14} /></button>
+              <span className="mock-best">{test.category} • {MOCK_TEST_QUESTIONS[test.itemId]?.some((question) => question.type === 'msq') ? 'MCQ + MSQ' : 'MCQ'}</span>
+              <button type="button" className="btn btn-small" onClick={() => startTest(test)}>Start test <ChevronRight size={14} /></button>
             </article>
           ))}
       </div>
@@ -1342,7 +1464,7 @@ function ProgressPage({ summary }) {
           {categoryProgress.map(({ category, percent }) => (
             <div className="subject-progress-row" key={category}>
               <span>{category}</span>
-              <div><i style={{ width: `${percent}%`, backgroundColor: CATEGORY_COLORS[category] || '#635bff' }} /></div>
+              <div><i className="progress-bar-fill-animation" style={{ width: `${percent}%`, backgroundColor: CATEGORY_COLORS[category] || '#635bff' }} /></div>
               <strong>{percent}%</strong>
             </div>
           ))}
@@ -1370,7 +1492,7 @@ function ProgressPage({ summary }) {
           <h3>Topic Completion</h3>
           <div className="topic-rings">
             {rings.map(([count, label, percent, color]) => (
-              <div className="topic-ring-item" key={label}><div className="topic-ring" style={{ '--ring-color': color, '--ring-progress': percent }}><strong>{count}</strong><small>Done</small></div><span>{label}</span><b>{percent}</b></div>
+              <div className="topic-ring-item" key={label}><div className="topic-ring progress-color-reveal" style={{ '--ring-color': color, '--ring-progress': percent }}><strong>{count}</strong><small>Done</small></div><span>{label}</span><b>{percent}</b></div>
             ))}
           </div>
         </section>
@@ -1837,7 +1959,7 @@ function Dashboard({ user, setUser, onLogout, onGoHome, onAccountDeleted, initia
                       return (
                         <div className="dashboard-subject-row" key={category}>
                           <div><strong>{category}</strong><span>{percent}%</span></div>
-                          <div className="dashboard-subject-track"><i style={{ width: `${percent}%`, backgroundColor: CATEGORY_COLORS[category] || '#635bff' }} /></div>
+                          <div className="dashboard-subject-track"><i className="progress-bar-fill-animation" style={{ width: `${percent}%`, backgroundColor: CATEGORY_COLORS[category] || '#635bff' }} /></div>
                         </div>
                       );
                     })}

@@ -2102,6 +2102,22 @@ p {
   border-radius: inherit;
 }
 
+.progress-bar-fill-animation {
+  transform-origin: left center;
+  animation: progressBarFill 1.15s cubic-bezier(0.22, 0.7, 0.2, 1) both;
+}
+
+@keyframes progressBarFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar-fill-animation {
+    animation: none;
+  }
+}
+
 .activity-chart {
   padding-top: 2px;
 }
