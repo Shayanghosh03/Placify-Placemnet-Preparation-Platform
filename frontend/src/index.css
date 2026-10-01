@@ -1310,14 +1310,18 @@ p {
   outline-offset: 1px;
 }
 
-.activity-calendar-day.level-1 { background: #d9f0df; }
-.activity-calendar-day.level-2 { background: #a9ddb5; }
-.activity-calendar-day.level-3 { background: #65bd78; }
-.activity-calendar-day.level-4 { background: #2f944b; }
+.activity-calendar-day.level-1 { background: #dbeafe; }
+.activity-calendar-day.level-2 { background: #93c5fd; }
+.activity-calendar-day.level-3 { background: #3b82f6; }
+.activity-calendar-day.level-4 { background: #1d4ed8; }
 
 .activity-calendar-day.outside-year {
   background: transparent;
   pointer-events: none;
+}
+
+.activity-calendar-day.month-start {
+  box-shadow: -5px 0 0 #ffffff;
 }
 
 .activity-calendar-details {
