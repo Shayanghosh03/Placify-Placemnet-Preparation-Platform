@@ -791,13 +791,28 @@ p {
   display: flex;
   overflow: hidden;
   background: #f8fafc;
-  animation: dashboardReloadReveal 0.28s ease-out both;
+  animation: dashboardReloadReveal 0.38s ease-out both;
 }
 
 @keyframes dashboardReloadReveal {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard-main {
+  animation: dashboardContentReveal 0.32s 0.04s ease-out both;
+}
+
+@keyframes dashboardContentReveal {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
   }
   to {
     opacity: 1;
