@@ -102,6 +102,26 @@ export function useDashboard() {
     }
   }, []);
 
+  const addGoal = useCallback(async (label, category) => {
+    try {
+      const { summary } = await api.progress.addGoal(label, category);
+      if (isMounted.current) dispatch({ type: 'SUMMARY_UPDATED', payload: summary });
+    } catch (err) {
+      console.error('addGoal failed:', err.message);
+      throw err;
+    }
+  }, []);
+
+  const removeGoal = useCallback(async (index) => {
+    try {
+      const { summary } = await api.progress.removeGoal(index);
+      if (isMounted.current) dispatch({ type: 'SUMMARY_UPDATED', payload: summary });
+    } catch (err) {
+      console.error('removeGoal failed:', err.message);
+      throw err;
+    }
+  }, []);
+
   const toggleBookmark = useCallback(async (data) => {
     try {
       const result = await api.progress.toggleBookmark(data);
@@ -116,6 +136,6 @@ export function useDashboard() {
 
   return {
     ...state,
-    actions: { refreshSummary, loadContent, solveTopic, recordQuiz, toggleGoal, toggleBookmark }
+    actions: { refreshSummary, loadContent, solveTopic, recordQuiz, toggleGoal, addGoal, removeGoal, toggleBookmark }
   };
 }

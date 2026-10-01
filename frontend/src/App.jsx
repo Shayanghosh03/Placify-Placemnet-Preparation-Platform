@@ -8,7 +8,7 @@ import Modals from './components/Modals';
 import ProfileSettings from './components/ProfileSettings';
 import UserAvatar from './components/UserAvatar';
 import { useDashboard } from './hooks/useDashboard.js';
-import { ArrowRight, ArrowUpRight, BarChart3, BookOpen, Bookmark, CheckCircle2, ChevronLeft, ChevronRight, CirclePlay, Code2, Download, FileText, Filter, Flame, Home, LayoutDashboard, LogOut, Mail, MapPin, Menu, NotebookTabs, PlayCircle, RotateCcw, Search, Send, Settings, Target, Trophy, Users, X, Zap } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BarChart3, BookOpen, Bookmark, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, CirclePlay, Code2, FileText, Filter, Flame, Home, LayoutDashboard, LogOut, Mail, MapPin, Menu, NotebookTabs, PlayCircle, RotateCcw, Search, Send, Settings, Target, Trophy, Users, X, Zap } from 'lucide-react';
 import './App.css';
 
 const getGreeting = () => {
@@ -23,6 +23,15 @@ const getFirstName = (fullName) => {
   const first = fullName.trim().split(' ')[0];
   return first || 'learner';
 };
+
+const CATEGORY_COLORS = {
+  Aptitude: '#2563eb',
+  Reasoning: '#0f766e',
+  'Verbal Ability': '#f59e0b',
+  DSA: '#16a34a'
+};
+
+const DASHBOARD_CATEGORIES = ['Aptitude', 'Reasoning', 'Verbal Ability', 'DSA'];
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -931,7 +940,7 @@ function NotesPage({ summary, actions }) {
 
   return (
     <section className="workspace-page">
-      <WorkspaceHeader compact action={<button className="btn btn-outline-demo"><Download size={17} /> Download all</button>} />
+      <WorkspaceHeader compact />
       {loading ? (
         <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading notes…</span></div>
       ) : (
@@ -1141,14 +1150,81 @@ function WorkspacePage({ tab, summary, actions, practiceQuery, practiceFilter, o
   return <section className="dashboard-panel dashboard-tab-panel"><span className="page-eyebrow">{tab.toUpperCase()}</span><h2>{tab}</h2><p>Your {tab.toLowerCase()} workspace is ready. Keep practicing consistently to improve your placement readiness.</p></section>;
 }
 
+function DailyActivityCalendar({ activityLog = [] }) {
+  const today = new Date();
+  const [selectedDate, setSelectedDate] = useState(() => today.toISOString().slice(0, 10));
+  const activityByDate = Object.fromEntries(activityLog.map((entry) => [entry.date, entry]));
+  const calendarDays = Array.from({ length: 84 }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (83 - index));
+    const dateKey = date.toISOString().slice(0, 10);
+    const activity = activityByDate[dateKey];
+    const problems = Number(activity?.problemsSolved) || 0;
+    const minutes = Number(activity?.minutesStudied) || 0;
+    const score = problems + Math.round(minutes / 10);
+    const level = score === 0 ? 0 : score < 5 ? 1 : score < 12 ? 2 : score < 25 ? 3 : 4;
+    return { date, dateKey, activity, level };
+  });
+  const selectedDay = calendarDays.find((day) => day.dateKey === selectedDate) || calendarDays[calendarDays.length - 1];
+  const monthLabels = calendarDays.reduce((labels, day, index) => {
+    if (day.date.getDate() === 1 || index === 0) {
+      labels.push({ label: day.date.toLocaleDateString(undefined, { month: 'short' }), index });
+    }
+    return labels;
+  }, []);
+
+  return (
+    <section className="dashboard-section-block activity-calendar-card">
+      <div className="dashboard-section-heading">
+        <div>
+          <h2><CalendarDays size={18} /> Daily activity</h2>
+          <span>Track your practice and study consistency</span>
+        </div>
+        <span className="activity-calendar-total">{activityLog.length} active days</span>
+      </div>
+      <div className="activity-calendar-body">
+        <div className="activity-calendar-months" aria-hidden="true">
+          {monthLabels.map(({ label, index }) => <span key={`${label}-${index}`} style={{ gridColumn: Math.floor(index / 7) + 1 }}>{label}</span>)}
+        </div>
+        <div className="activity-calendar-grid" role="group" aria-label="Daily activity for the last 12 weeks">
+          {calendarDays.map((day) => (
+            <button
+              type="button"
+              key={day.dateKey}
+              className={`activity-calendar-day level-${day.level}${day.dateKey === selectedDate ? ' selected' : ''}`}
+              onClick={() => setSelectedDate(day.dateKey)}
+              title={`${day.date.toLocaleDateString()}${day.activity ? `: ${day.activity.problemsSolved || 0} problems, ${day.activity.minutesStudied || 0} minutes` : ': No activity'}`}
+              aria-label={`${day.date.toLocaleDateString()}${day.activity ? `, ${day.activity.problemsSolved || 0} problems solved and ${day.activity.minutesStudied || 0} minutes studied` : ', no activity'}`}
+            />
+          ))}
+        </div>
+        <div className="activity-calendar-details">
+          <strong>{selectedDay.date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</strong>
+          <span>{selectedDay.activity ? `${selectedDay.activity.problemsSolved || 0} problems solved • ${selectedDay.activity.minutesStudied || 0} minutes studied` : 'No activity recorded'}</span>
+        </div>
+        <div className="activity-calendar-legend" aria-label="Activity intensity legend">
+          <span>Less</span>
+          {[0, 1, 2, 3, 4].map((level) => <i className={`activity-calendar-day level-${level}`} key={level} />)}
+          <span>More</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ProgressPage({ summary }) {
-  const categoryProgress = summary?.categoryProgress || [
-    { category: 'Aptitude', percent: 0 },
-    { category: 'Reasoning', percent: 0 },
-    { category: 'Verbal Ability', percent: 0 },
-    { category: 'DSA', percent: 0 }
-  ];
-  const colorMap = { Aptitude: '#2563eb', Reasoning: '#14b8a6', 'Verbal Ability': '#f59e0b', DSA: '#db2777' };
+  const categoryProgress = summary?.categoryProgress || DASHBOARD_CATEGORIES.map((category) => ({ category, percent: 0 }));
+  let summaryRingStop = 0;
+  const summaryRingSegments = DASHBOARD_CATEGORIES.map((category) => {
+    const percent = categoryProgress.find((item) => item.category === category)?.percent || 0;
+    const normalizedPercent = Math.max(0, Math.min(100, Number(percent) || 0));
+    const start = summaryRingStop;
+    summaryRingStop += normalizedPercent / DASHBOARD_CATEGORIES.length;
+    return `${CATEGORY_COLORS[category]} ${start.toFixed(2)}% ${summaryRingStop.toFixed(2)}%`;
+  });
+  const summaryRingBackground = summaryRingStop > 0
+    ? `radial-gradient(circle, #ffffff 57%, transparent 58%), conic-gradient(${summaryRingSegments.join(', ')}, #e5edf8 ${summaryRingStop.toFixed(2)}% 100%)`
+    : 'radial-gradient(circle, #ffffff 57%, transparent 58%), #e5edf8';
 
   // Build weekly activity from activityLog (last 7 entries)
   const activityLog = summary?.activityLog || [];
@@ -1156,11 +1232,11 @@ function ProgressPage({ summary }) {
   const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   // Use solved-problem totals and category percentages from the live summary.
-  const rings = ['Aptitude', 'Reasoning', 'Verbal Ability', 'DSA'].map((cat) => {
+  const rings = DASHBOARD_CATEGORIES.map((cat) => {
     const progress = categoryProgress.find((item) => item.category === cat);
     const pct = progress?.percent || 0;
     const solved = progress?.solved || 0;
-    return [String(solved), cat.split(' ')[0], `${pct}%`, colorMap[cat] || '#635bff'];
+    return [String(solved), cat.split(' ')[0], `${pct}%`, CATEGORY_COLORS[cat] || '#635bff'];
   });
 
   // Build SVG polyline from activityLog
@@ -1178,7 +1254,7 @@ function ProgressPage({ summary }) {
   return (
     <section className="progress-page">
       <div className="progress-summary-grid">
-        <div className="progress-summary-card"><span>Overall Progress</span><div className="progress-summary-ring"><strong>{summary?.overall ?? 0}%</strong><small>Overall</small></div></div>
+        <div className="progress-summary-card"><span>Overall Progress</span><div className="progress-summary-ring" style={{ background: summaryRingBackground }}><strong>{summary?.overall ?? 0}%</strong><small>Overall</small></div></div>
         <div className="progress-summary-card"><span>Problems Solved</span><strong className="progress-big-number">{summary?.problemsSolved ?? 0}</strong><small className="progress-positive">+{last7.reduce((s, d) => s + d.problemsSolved, 0)} this week</small></div>
         <div className="progress-summary-card"><span>Quizzes Taken</span><strong className="progress-big-number">{summary?.quizzesTaken ?? 0}</strong><small className="progress-positive">keep going!</small></div>
         <div className="progress-summary-card"><span>Study Streak</span><strong className="progress-big-number">{summary?.studyStreakDays ?? 0} Days</strong><small className="progress-purple">Best: {summary?.bestStreakDays ?? 0} days</small></div>
@@ -1189,7 +1265,7 @@ function ProgressPage({ summary }) {
           {categoryProgress.map(({ category, percent }) => (
             <div className="subject-progress-row" key={category}>
               <span>{category}</span>
-              <div><i style={{ width: `${percent}%`, backgroundColor: colorMap[category] || '#635bff' }} /></div>
+              <div><i style={{ width: `${percent}%`, backgroundColor: CATEGORY_COLORS[category] || '#635bff' }} /></div>
               <strong>{percent}%</strong>
             </div>
           ))}
@@ -1269,10 +1345,10 @@ const TOPIC_METADATA = {
 };
 
 const CATEGORY_FALLBACK = {
-  Aptitude: { color: '#2563eb', icon: Target, tab: 'Practice' },
-  Reasoning: { color: '#0f766e', icon: Users, tab: 'Practice' },
-  'Verbal Ability': { color: '#db2777', icon: FileText, tab: 'Practice' },
-  DSA: { color: '#635bff', icon: Code2, tab: 'DSA' }
+  Aptitude: { color: CATEGORY_COLORS.Aptitude, icon: Target, tab: 'Practice' },
+  Reasoning: { color: CATEGORY_COLORS.Reasoning, icon: Users, tab: 'Practice' },
+  'Verbal Ability': { color: CATEGORY_COLORS['Verbal Ability'], icon: FileText, tab: 'Practice' },
+  DSA: { color: CATEGORY_COLORS.DSA, icon: Code2, tab: 'DSA' }
 };
 
 function getContinueLearningTopics(summary) {
@@ -1359,6 +1435,9 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showDailyGoals, setShowDailyGoals] = useState(false);
+  const [newGoalLabel, setNewGoalLabel] = useState('');
+  const [newGoalCategory, setNewGoalCategory] = useState('Aptitude');
+  const [goalError, setGoalError] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [practiceQuery, setPracticeQuery] = useState('');
   const [practiceFilter, setPracticeFilter] = useState('All');
@@ -1589,7 +1668,7 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
               <Flame size={22} />
               <span>
                 <strong>Daily Goal</strong>
-                <small>{(summary?.dailyGoals || []).filter((g) => g.completed).length} / {(summary?.dailyGoals || []).length || 5} topics</small>
+                <small>{(summary?.dailyGoals || []).filter((g) => g.completed).length} / {(summary?.dailyGoals || []).length} goals</small>
               </span>
             </button>
           )}
@@ -1647,11 +1726,19 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
                 <div className="dashboard-progress-content">
                   {(() => {
                     const overall = Math.max(0, Math.min(100, Number(summary?.overall) || 0));
-                    const firstColorStop = (overall * 0.34).toFixed(2);
-                    const secondColorStop = (overall * 0.67).toFixed(2);
-                    const ringBackground = overall > 0
-                      ? `radial-gradient(circle, #ffffff 57%, transparent 58%), conic-gradient(#3b82f6 0 ${firstColorStop}%, #ef476f ${firstColorStop}% ${secondColorStop}%, #16a34a ${secondColorStop}% ${overall}%, #e8eef8 ${overall}% 100%)`
-                      : 'transparent';
+                    const categoryProgress = summary?.categoryProgress || DASHBOARD_CATEGORIES.map((category) => ({ category, percent: 0 }));
+                    let ringStop = 0;
+                    const ringSegments = categoryProgress
+                      .filter(({ category }) => DASHBOARD_CATEGORIES.includes(category))
+                      .map(({ category, percent }) => {
+                        const normalizedPercent = Math.max(0, Math.min(100, Number(percent) || 0));
+                        const start = ringStop;
+                        ringStop += normalizedPercent / DASHBOARD_CATEGORIES.length;
+                        return `${CATEGORY_COLORS[category]} ${start.toFixed(2)}% ${ringStop.toFixed(2)}%`;
+                      });
+                    const ringBackground = ringStop > 0
+                      ? `radial-gradient(circle, #ffffff 57%, transparent 58%), conic-gradient(${ringSegments.join(', ')}, #e8eef8 ${ringStop.toFixed(2)}% 100%)`
+                      : 'radial-gradient(circle, #ffffff 57%, transparent 58%), #e8eef8';
                     return (
                       <div
                         className={`dashboard-progress-ring${overall > 0 ? ' active' : ''}`}
@@ -1663,17 +1750,11 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
                     );
                   })()}
                   <div className="dashboard-subject-progress">
-                    {(summary?.categoryProgress || [
-                      { category: 'Aptitude', percent: 0 },
-                      { category: 'Reasoning', percent: 0 },
-                      { category: 'Verbal Ability', percent: 0 },
-                      { category: 'DSA', percent: 0 }
-                    ]).map(({ category, percent }) => {
-                      const colorMap = { Aptitude: '#3b82f6', Reasoning: '#2563eb', 'Verbal Ability': '#ef476f', DSA: '#16a34a' };
+                    {(summary?.categoryProgress || DASHBOARD_CATEGORIES.map((category) => ({ category, percent: 0 }))).map(({ category, percent }) => {
                       return (
                         <div className="dashboard-subject-row" key={category}>
                           <div><strong>{category}</strong><span>{percent}%</span></div>
-                          <div className="dashboard-subject-track"><i style={{ width: `${percent}%`, backgroundColor: colorMap[category] || '#635bff' }} /></div>
+                          <div className="dashboard-subject-track"><i style={{ width: `${percent}%`, backgroundColor: CATEGORY_COLORS[category] || '#635bff' }} /></div>
                         </div>
                       );
                     })}
@@ -1695,6 +1776,7 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
                 ))}
               </div>
             </section>
+            <DailyActivityCalendar activityLog={summary?.activityLog || []} />
             <section className="dashboard-section-block">
               <div className="dashboard-section-heading">
                 <div>
@@ -1814,28 +1896,60 @@ function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
               {(() => {
                 const goals = summary?.dailyGoals || [];
                 const completedCount = goals.filter((g) => g.completed).length;
-                const totalCount = goals.length || 5;
+                const totalCount = goals.length;
                 const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
                 return (
                   <>
-                    <p className="daily-goals-summary">You are {completedCount} of {totalCount} topics complete. Finish {totalCount - completedCount} more to keep your learning streak going!</p>
+                    <p className="daily-goals-summary">
+                      {totalCount > 0
+                        ? `You are ${completedCount} of ${totalCount} goals complete. Finish ${totalCount - completedCount} more to keep your learning streak going!`
+                        : 'Create a few goals for today and track your progress as you complete them.'}
+                    </p>
                     <div className="daily-goals-progress"><i style={{ width: `${pct}%` }} /></div>
-                    <div className="daily-goals-progress-label"><strong>{pct}% complete</strong><span>{totalCount - completedCount} topics left</span></div>
+                    <div className="daily-goals-progress-label"><strong>{pct}% complete</strong><span>{totalCount - completedCount} goals left</span></div>
+                    <form
+                      className="daily-goal-create"
+                      onSubmit={async (event) => {
+                        event.preventDefault();
+                        if (!newGoalLabel.trim()) {
+                          setGoalError('Enter a goal before adding it.');
+                          return;
+                        }
+                        try {
+                          setGoalError('');
+                          await actions.addGoal(newGoalLabel.trim(), newGoalCategory);
+                          setNewGoalLabel('');
+                        } catch (error) {
+                          setGoalError(error.message);
+                        }
+                      }}
+                    >
+                      <input
+                        type="text"
+                        value={newGoalLabel}
+                        onChange={(event) => setNewGoalLabel(event.target.value)}
+                        placeholder="Add a goal for today"
+                        maxLength={120}
+                        aria-label="New daily goal"
+                      />
+                      <select value={newGoalCategory} onChange={(event) => setNewGoalCategory(event.target.value)} aria-label="Goal category">
+                        {['Aptitude', 'Reasoning', 'Verbal Ability', 'DSA', 'Mock Tests', 'Notes', 'Other'].map((category) => <option key={category}>{category}</option>)}
+                      </select>
+                      <button type="submit">Add goal</button>
+                    </form>
+                    {goalError && <p className="daily-goal-error" role="alert">{goalError}</p>}
                     <div className="daily-goals-list">
                       {dashLoading ? (
                         <div className="dashboard-loading-state"><div className="dashboard-spinner" /></div>
                       ) : goals.map((goal, idx) => (
-                        <button
-                          type="button"
-                          className={`daily-goal-item${goal.completed ? ' complete' : ''}`}
-                          key={goal.label}
-                          onClick={() => actions.toggleGoal(idx, !goal.completed)}
-                          style={{ cursor: 'pointer', background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: 0 }}
-                        >
-                          <CheckCircle2 size={19} />
+                        <div className={`daily-goal-item${goal.completed ? ' complete' : ''}`} key={`${goal.label}-${idx}`}>
+                          <button type="button" className="daily-goal-toggle" onClick={() => actions.toggleGoal(idx, !goal.completed)} aria-label={`${goal.completed ? 'Mark' : 'Complete'} ${goal.label}`}>
+                            <CheckCircle2 size={19} />
+                          </button>
                           <span><strong>{goal.label}</strong><small>{goal.category}</small></span>
                           {goal.completed && <em>Done</em>}
-                        </button>
+                          <button type="button" className="daily-goal-remove" onClick={() => actions.removeGoal(idx)} aria-label={`Remove ${goal.label}`}><X size={14} /></button>
+                        </div>
                       ))}
                     </div>
                   </>

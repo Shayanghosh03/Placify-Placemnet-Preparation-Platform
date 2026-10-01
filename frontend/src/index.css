@@ -1234,6 +1234,122 @@ p {
   cursor: pointer;
 }
 
+.activity-calendar-card {
+  padding: 18px 20px;
+  border: 1px solid #e9eefa;
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.activity-calendar-card .dashboard-section-heading {
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.activity-calendar-card .dashboard-section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activity-calendar-card .dashboard-section-heading h2 svg {
+  color: var(--primary-purple);
+}
+
+.activity-calendar-total {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.activity-calendar-body {
+  overflow-x: auto;
+}
+
+.activity-calendar-months,
+.activity-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(13px, 1fr));
+  gap: 5px;
+  min-width: 430px;
+}
+
+.activity-calendar-months {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  margin-bottom: 5px;
+}
+
+.activity-calendar-months span {
+  min-width: 0;
+}
+
+.activity-calendar-grid {
+  grid-template-rows: repeat(7, 13px);
+  grid-auto-flow: column;
+}
+
+.activity-calendar-day {
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: #eef2f7;
+  cursor: pointer;
+  transition: transform 0.15s ease, outline-color 0.15s ease;
+}
+
+.activity-calendar-day:hover,
+.activity-calendar-day.selected {
+  transform: scale(1.2);
+  outline: 2px solid #a5b4fc;
+  outline-offset: 1px;
+}
+
+.activity-calendar-day.level-1 { background: #c7d2fe; }
+.activity-calendar-day.level-2 { background: #818cf8; }
+.activity-calendar-day.level-3 { background: #6366f1; }
+.activity-calendar-day.level-4 { background: #4338ca; }
+
+.activity-calendar-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.activity-calendar-details strong {
+  color: var(--text-medium);
+  font-size: 0.75rem;
+}
+
+.activity-calendar-details span {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-align: right;
+}
+
+.activity-calendar-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 0.64rem;
+}
+
+.activity-calendar-legend .activity-calendar-day {
+  flex: 0 0 13px;
+  cursor: default;
+}
+
 .dashboard-learning-grid,
 .dashboard-recommendation-grid {
   display: grid;
@@ -1604,6 +1720,59 @@ p {
   color: #ea580c;
 }
 
+.daily-goal-create {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.daily-goal-create input,
+.daily-goal-create select {
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  color: var(--text-medium);
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.72rem;
+}
+
+.daily-goal-create input:focus,
+.daily-goal-create select:focus {
+  outline: 2px solid #c7d2fe;
+  border-color: #818cf8;
+}
+
+.daily-goal-create input {
+  grid-column: 1 / -1;
+}
+
+.daily-goal-create button {
+  height: 36px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  background: var(--primary-purple);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.daily-goal-create button:hover {
+  background: #4338ca;
+}
+
+.daily-goal-error {
+  margin: -4px 0 10px;
+  color: #dc2626;
+  font-size: 0.7rem;
+}
+
 .daily-goals-list {
   display: flex;
   flex-direction: column;
@@ -1620,9 +1789,24 @@ p {
   background: #ffffff;
 }
 
-.daily-goal-item > svg {
+.daily-goal-toggle,
+.daily-goal-remove {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.daily-goal-toggle > svg {
   flex-shrink: 0;
   color: #cbd5e1;
+}
+
+.daily-goal-toggle:hover > svg {
+  color: var(--primary-purple);
 }
 
 .daily-goal-item > span {
@@ -1660,6 +1844,14 @@ p {
   font-size: 0.68rem;
   font-style: normal;
   font-weight: 800;
+}
+
+.daily-goal-remove {
+  color: #cbd5e1;
+}
+
+.daily-goal-remove:hover {
+  color: #dc2626;
 }
 
 .daily-goals-action {

@@ -129,13 +129,7 @@ router.get('/', requireAuth, async (req, res, next) => {
     // Ensure daily goals exist for today
     const today = todayStr();
     if (progress.dailyGoalsDate !== today) {
-      progress.dailyGoals = [
-        { label: 'Practice Percentage questions', category: 'Aptitude', completed: false },
-        { label: 'Revise Blood Relations', category: 'Reasoning', completed: false },
-        { label: 'Learn one DSA concept', category: 'DSA', completed: false },
-        { label: 'Take a 10-question mock quiz', category: 'Mock Tests', completed: false },
-        { label: 'Review your saved notes', category: 'Notes', completed: false }
-      ];
+      progress.dailyGoals = [];
       progress.dailyGoalsDate = today;
       await progress.save();
     }
@@ -235,6 +229,55 @@ router.patch('/goals/:index', requireAuth, async (req, res, next) => {
       logActivity(progress, { topics: 1, minutes: 10 });
     }
 
+    await progress.save();
+    return res.json({ dailyGoals: progress.dailyGoals, summary: buildSummary(progress) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+/**
+ * POST /api/progress/goals
+ * Body: { label: string, category: string }
+ * Adds a user-created goal to today's plan.
+ */
+router.post('/goals', requireAuth, async (req, res, next) => {
+  try {
+    const label = String(req.body.label || '').trim();
+    const category = String(req.body.category || '').trim();
+    const allowedCategories = ['Aptitude', 'Reasoning', 'Verbal Ability', 'DSA', 'Mock Tests', 'Notes', 'Other'];
+    const progress = await getOrCreateProgress(req.user._id);
+
+    if (!label || label.length > 120) {
+      return res.status(400).json({ message: 'Goal must be between 1 and 120 characters' });
+    }
+    if (!allowedCategories.includes(category)) {
+      return res.status(400).json({ message: 'Choose a valid goal category' });
+    }
+    if (progress.dailyGoals.length >= 10) {
+      return res.status(400).json({ message: 'You can add up to 10 goals per day' });
+    }
+
+    progress.dailyGoals.push({ label, category, completed: false });
+    await progress.save();
+    return res.json({ dailyGoals: progress.dailyGoals, summary: buildSummary(progress) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+/**
+ * DELETE /api/progress/goals/:index
+ * Removes a user-created goal from today's plan.
+ */
+router.delete('/goals/:index', requireAuth, async (req, res, next) => {
+  try {
+    const index = parseInt(req.params.index, 10);
+    const progress = await getOrCreateProgress(req.user._id);
+    if (index < 0 || index >= progress.dailyGoals.length) {
+      return res.status(400).json({ message: 'Invalid goal index' });
+    }
+    progress.dailyGoals.splice(index, 1);
     await progress.save();
     return res.json({ dailyGoals: progress.dailyGoals, summary: buildSummary(progress) });
   } catch (error) {

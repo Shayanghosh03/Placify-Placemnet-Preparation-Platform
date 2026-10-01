@@ -34,6 +34,8 @@ export const api = {
     solveTopic: (topicId, count = 1) => api.post(`/progress/topic/${topicId}/solve`, { count }),
     recordQuiz: (data) => api.post('/progress/quiz', data),
     toggleGoal: (index, completed) => api.patch(`/progress/goals/${index}`, { completed }),
+    addGoal: (label, category) => api.post('/progress/goals', { label, category }),
+    removeGoal: (index) => api.delete(`/progress/goals/${index}`),
     toggleBookmark: (data) => api.post('/progress/bookmarks', data),
     getContent: (params = {}) => {
       const qs = new URLSearchParams(params).toString();
