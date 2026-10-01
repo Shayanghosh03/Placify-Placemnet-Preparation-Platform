@@ -189,7 +189,13 @@ function App() {
     handleTabChange('Home');
   };
 
-  if ((isLoggedIn || (authLoading && !homeViewOverride)) && !homeViewOverride) {
+  // Wait for the session check before mounting the dashboard. This prevents
+  // the dashboard shell from mounting once with an empty user during refresh.
+  if (authLoading) {
+    return null;
+  }
+
+  if (isLoggedIn && !homeViewOverride) {
     return (
       <Dashboard
         user={user}
@@ -197,6 +203,7 @@ function App() {
         initialTab={initialDashboardTab}
         onLogout={handleLogout}
         onGoHome={handleGoHome}
+        onAccountDeleted={handleAccountDeleted}
       />
     );
   }
@@ -1439,7 +1446,7 @@ function getContinueLearningTopics(summary) {
   return selected.slice(0, 4);
 }
 
-function Dashboard({ user, setUser, onLogout, onGoHome, initialTab }) {
+function Dashboard({ user, setUser, onLogout, onGoHome, onAccountDeleted, initialTab }) {
   const { loading: dashLoading, summary, actions } = useDashboard();
   const [dashboardTab, setDashboardTab] = useState(() => {
     if (typeof window === 'undefined') return 'Dashboard';

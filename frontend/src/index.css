@@ -1106,15 +1106,6 @@ p {
   transition: background 0.35s ease;
 }
 
-.dashboard-progress-ring.active {
-  animation: dashboard-progress-reveal 0.7s ease-out both;
-}
-
-@keyframes dashboard-progress-reveal {
-  from { opacity: 0.35; transform: scale(0.94); }
-  to { opacity: 1; transform: scale(1); }
-}
-
 .dashboard-progress-ring strong {
   color: var(--text-dark);
   font-size: 1.45rem;
@@ -2287,7 +2278,6 @@ p {
   padding: 32px;
   overflow: hidden;
   background: linear-gradient(120deg, #f1efff, #ffffff 72%);
-  animation: cardReveal 0.6s ease both;
 }
 
 .dashboard-welcome h2,
@@ -2331,11 +2321,7 @@ p {
   border-radius: var(--radius-md);
   background: #ffffff;
   border: 1px solid #e9eefa;
-  animation: cardReveal 0.55s ease both;
 }
-
-.dashboard-stat-card:nth-child(2) { animation-delay: 0.08s; }
-.dashboard-stat-card:nth-child(3) { animation-delay: 0.16s; }
 
 .dashboard-stat-card span,
 .dashboard-stat-card small {
