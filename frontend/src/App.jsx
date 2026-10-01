@@ -34,6 +34,7 @@ const CATEGORY_COLORS = {
 const DASHBOARD_CATEGORIES = ['Aptitude', 'Reasoning', 'Verbal Ability', 'DSA'];
 
 function App() {
+  const [authLoading, setAuthLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [initialDashboardTab, setInitialDashboardTab] = useState('Dashboard');
@@ -90,6 +91,8 @@ function App() {
       setIsLoggedIn(false);
       setUser(null);
       persistView('home');
+    } finally {
+      setAuthLoading(false);
     }
     return null;
   };
@@ -102,6 +105,10 @@ function App() {
 
     fetchUser();
   }, []);
+
+  if (authLoading) {
+    return <div className="auth-loading" role="status" aria-live="polite">Loading your workspace…</div>;
+  }
 
   const persistView = (view) => {
     const isHome = view === 'home';
@@ -557,7 +564,7 @@ const DSA_TOPIC_FALLBACKS = [
 function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'All' }) {
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState(initialFilter);
-  const [topics, setTopics] = useState([]);
+  const [topics, setTopics] = useState(PRACTICE_TOPIC_FALLBACKS);
   const [loadingTopics, setLoadingTopics] = useState(true);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [solvingQuestion, setSolvingQuestion] = useState('');
@@ -625,9 +632,7 @@ function PracticePage({ summary, actions, initialQuery = '', initialFilter = 'Al
         <label className="workspace-search"><Search size={17} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search topics" /></label>
         <div className="workspace-filters"><Filter size={16} />{categories.map((item) => <button className={filter === item ? 'active' : ''} type="button" key={item} onClick={() => setFilter(item)}>{item}</button>)}</div>
       </div>
-      {loadingTopics ? (
-        <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading topics…</span></div>
-      ) : selectedTopic ? (
+      {selectedTopic ? (
         <section className="dsa-question-page practice-question-page">
           <button type="button" className="dsa-back-button" onClick={() => setSelectedTopic(null)}>
             <ChevronLeft size={16} /> Back to practice topics
@@ -770,7 +775,7 @@ const DSA_PROBLEMS = {
 };
 
 function DsaPage({ summary, actions }) {
-  const [dsaTopics, setDsaTopics] = useState([]);
+  const [dsaTopics, setDsaTopics] = useState(DSA_TOPIC_FALLBACKS);
   const [loading, setLoading] = useState(true);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [solvingQuestion, setSolvingQuestion] = useState('');
@@ -842,10 +847,7 @@ function DsaPage({ summary, actions }) {
           <div className="mini-progress"><i style={{ width: `${overallPct}%` }} /></div>
         </div>
       </div>
-      {loading ? (
-        <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading DSA topics…</span></div>
-      ) : (
-        selectedTopic ? (
+      {selectedTopic ? (
           <section className="dsa-question-page">
             <button type="button" className="dsa-back-button" onClick={() => setSelectedTopic(null)}>
               <ChevronLeft size={16} /> Back to DSA topics
@@ -879,7 +881,6 @@ function DsaPage({ summary, actions }) {
             </div>
           </section>
         ) : (
-        <>
           <div className="dsa-topic-card-grid">
             {topicCards.map(([label, questionTopic, progressId, color, description]) => {
               const topic = dsaTopics.find((item) => item.itemId === progressId);
@@ -904,9 +905,7 @@ function DsaPage({ summary, actions }) {
               );
             })}
           </div>
-        </>
-        )
-      )}
+        )}
     </section>
   );
 }
@@ -920,8 +919,16 @@ const NOTE_RESOURCES = [
   { itemId: 'note-interview-questions', title: 'Interview Questions', category: 'Interview Preparation', description: 'Frequently asked technical and HR interview questions.', color: '#0891b2', driveUrl: '' }
 ];
 
+const MOCK_TEST_FALLBACKS = [
+  { itemId: 'mock-placement-readiness', title: 'Placement Readiness Check', category: 'Mixed', difficulty: 'Hard', totalProblems: 40, duration: '45 min', color: '#f59e0b' },
+  { itemId: 'mock-tcs-nqt-quant', title: 'TCS NQT — Quantitative Ability', category: 'Aptitude', difficulty: 'Medium', totalProblems: 20, duration: '25 min', color: '#635bff' },
+  { itemId: 'mock-infosys-foundation', title: 'Infosys Foundation Test', category: 'Aptitude', difficulty: 'Medium', totalProblems: 30, duration: '35 min', color: '#2563eb' },
+  { itemId: 'mock-accenture-cognitive', title: 'Accenture Cognitive Assessment', category: 'Reasoning', difficulty: 'Hard', totalProblems: 25, duration: '30 min', color: '#db2777' },
+  { itemId: 'mock-wipro-elite', title: 'Wipro Elite NLTH', category: 'Aptitude', difficulty: 'Medium', totalProblems: 25, duration: '28 min', color: '#16a34a' }
+];
+
 function NotesPage({ summary, actions }) {
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState(NOTE_RESOURCES);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -941,10 +948,7 @@ function NotesPage({ summary, actions }) {
   return (
     <section className="workspace-page">
       <WorkspaceHeader compact />
-      {loading ? (
-        <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading notes…</span></div>
-      ) : (
-        <div className="notes-layout">
+      <div className="notes-layout">
           <div className="notes-resource-grid">
             {resources.map((note) => (
               <article
@@ -987,27 +991,19 @@ function NotesPage({ summary, actions }) {
             <p>Spend 10 minutes reviewing a note before starting a quiz. Small, regular revisions improve recall far more than last-minute cramming.</p>
             <button type="button">Start a revision session <ArrowRight size={15} /></button>
           </aside>
-        </div>
-      )}
+      </div>
     </section>
   );
 }
 
 function MockTestsPage({ summary, actions }) {
-  const [tests, setTests] = useState([]);
+  const [tests, setTests] = useState(MOCK_TEST_FALLBACKS);
   const [loading, setLoading] = useState(true);
-  const mockFallbacks = [
-    { itemId: 'mock-placement-readiness', title: 'Placement Readiness Check', category: 'Mixed', difficulty: 'Hard', totalProblems: 40, duration: '45 min', color: '#f59e0b' },
-    { itemId: 'mock-tcs-nqt-quant', title: 'TCS NQT — Quantitative Ability', category: 'Aptitude', difficulty: 'Medium', totalProblems: 20, duration: '25 min', color: '#635bff' },
-    { itemId: 'mock-infosys-foundation', title: 'Infosys Foundation Test', category: 'Aptitude', difficulty: 'Medium', totalProblems: 30, duration: '35 min', color: '#2563eb' },
-    { itemId: 'mock-accenture-cognitive', title: 'Accenture Cognitive Assessment', category: 'Reasoning', difficulty: 'Hard', totalProblems: 25, duration: '30 min', color: '#db2777' },
-    { itemId: 'mock-wipro-elite', title: 'Wipro Elite NLTH', category: 'Aptitude', difficulty: 'Medium', totalProblems: 25, duration: '28 min', color: '#16a34a' }
-  ];
 
   useEffect(() => {
     setLoading(true);
     actions.loadContent({ type: 'mock' }).then((data) => {
-      setTests(data?.length ? data : mockFallbacks);
+      setTests(data?.length ? data : MOCK_TEST_FALLBACKS);
       setLoading(false);
     });
   }, [actions]);
@@ -1031,10 +1027,7 @@ function MockTestsPage({ summary, actions }) {
         </div>
       )}
       <h3 className="workspace-subheading">Company-specific tests <span className="mock-coming-badge">Coming soon</span></h3>
-      {loading ? (
-        <div className="dashboard-loading-state"><div className="dashboard-spinner" /><span>Loading tests…</span></div>
-      ) : (
-        <div className="mock-list">
+      <div className="mock-list">
           {restTests.map((test) => (
             <article className="mock-row" key={test.itemId}>
               <div className="content-icon" style={{ color: test.color, backgroundColor: `${test.color}18` }}><Trophy size={19} /></div>
@@ -1046,8 +1039,7 @@ function MockTestsPage({ summary, actions }) {
               <button type="button" className="btn btn-small" disabled>Coming soon <ChevronRight size={14} /></button>
             </article>
           ))}
-        </div>
-      )}
+      </div>
     </section>
   );
 }
@@ -1195,7 +1187,7 @@ function DailyActivityCalendar({ activityLog = [] }) {
       </div>
       <div className="activity-calendar-body">
         <div className="activity-calendar-months" style={{ gridTemplateColumns: `repeat(${weeks}, 14px)` }} aria-hidden="true">
-          {monthLabels.map(({ label, week }) => <span key={`${label}-${week}`} style={{ gridColumn: week + 1 }}>{label}</span>)}
+          {monthLabels.map(({ label, week }) => <span className={week > 0 ? 'month-label-start' : ''} key={`${label}-${week}`} style={{ gridColumn: week + 1 }}>{label}</span>)}
         </div>
         <div className="activity-calendar-grid" style={{ gridTemplateColumns: `repeat(${weeks}, 14px)` }} role="group" aria-label={`Daily activity for ${year}`}>
           {calendarCells.map((day, index) => day.isCurrentYear ? (
