@@ -1785,14 +1785,18 @@ function Dashboard({ user, setUser, onLogout, onGoHome, onAccountDeleted, initia
             )}
           </div>
         </header>
-        {dashboardTab === 'Profile Settings' ? (
-          <ProfileSettings
-            user={user}
-            onUpdateUser={setUser}
-            onAccountDeleted={onAccountDeleted}
-            onBack={() => handleSelectTab('Dashboard')}
-          />
-        ) : (dashboardTab === 'Dashboard' || dashboardTab === 'Overview') ? (
+        <div
+          key={dashboardTab}
+          className={`dashboard-content-stage${summary ? ' ready' : ''}`}
+        >
+          {dashboardTab === 'Profile Settings' ? (
+            <ProfileSettings
+              user={user}
+              onUpdateUser={setUser}
+              onAccountDeleted={onAccountDeleted}
+              onBack={() => handleSelectTab('Dashboard')}
+            />
+          ) : (dashboardTab === 'Dashboard' || dashboardTab === 'Overview') ? (
           <>
             <section className="dashboard-overview-grid">
               <div className="dashboard-progress-card">
@@ -1941,7 +1945,8 @@ function Dashboard({ user, setUser, onLogout, onGoHome, onAccountDeleted, initia
             practiceFilter={practiceFilter}
             onNavigate={handleSelectTab}
           />
-        )}
+          )}
+        </div>
         {showDailyGoals && (
           <div
             className="daily-goals-overlay"
