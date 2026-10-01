@@ -1325,7 +1325,7 @@ p {
 }
 
 .activity-calendar-day.month-start {
-  margin-left: 7px;
+  transform: translateX(7px);
 }
 
 .activity-calendar-details {
