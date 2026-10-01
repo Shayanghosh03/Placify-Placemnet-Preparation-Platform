@@ -226,7 +226,12 @@ function App() {
   // Wait for the session check before mounting the dashboard. This prevents
   // the dashboard shell from mounting once with an empty user during refresh.
   if (authLoading && !isLoggedIn) {
-    return null;
+    return (
+      <div className="auth-loading" role="status" aria-live="polite">
+        <div className="dashboard-spinner" aria-hidden="true" />
+        <span>Loading Placify...</span>
+      </div>
+    );
   }
 
   if (isLoggedIn && !homeViewOverride) {
@@ -1326,7 +1331,7 @@ function ProgressPage({ summary }) {
   return (
     <section className="progress-page">
       <div className="progress-summary-grid">
-        <div className="progress-summary-card"><span>Overall Progress</span><div className="progress-summary-ring progress-visual-reveal" style={{ background: summaryRingBackground }}><strong>{summary?.overall ?? 0}%</strong><small>Overall</small></div></div>
+        <div className="progress-summary-card"><span>Overall Progress</span><div className="progress-summary-ring progress-color-reveal" style={{ background: summaryRingBackground }}><strong>{summary?.overall ?? 0}%</strong><small>Overall</small></div></div>
         <div className="progress-summary-card"><span>Problems Solved</span><strong className="progress-big-number">{summary?.problemsSolved ?? 0}</strong><small className="progress-positive">+{last7.reduce((s, d) => s + d.problemsSolved, 0)} this week</small></div>
         <div className="progress-summary-card"><span>Quizzes Taken</span><strong className="progress-big-number">{summary?.quizzesTaken ?? 0}</strong><small className="progress-positive">keep going!</small></div>
         <div className="progress-summary-card"><span>Study Streak</span><strong className="progress-big-number">{summary?.studyStreakDays ?? 0} Days</strong><small className="progress-purple">Best: {summary?.bestStreakDays ?? 0} days</small></div>
@@ -1819,7 +1824,7 @@ function Dashboard({ user, setUser, onLogout, onGoHome, onAccountDeleted, initia
                       : 'radial-gradient(circle, #ffffff 57%, transparent 58%), #e8eef8';
                     return (
                       <div
-                        className={`dashboard-progress-ring${overall > 0 ? ' active' : ''}`}
+                        className={`dashboard-progress-ring progress-color-reveal${overall > 0 ? ' active' : ''}`}
                         style={{ background: ringBackground }}
                       >
                         <strong>{overall}%</strong>

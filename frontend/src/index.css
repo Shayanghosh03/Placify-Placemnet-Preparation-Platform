@@ -1957,20 +1957,43 @@ p {
   padding: 18px;
 }
 
-.progress-visual-reveal {
-  animation: progressVisualReveal 0.9s ease-out both;
+@property --ring-reveal {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 100%;
 }
 
-@keyframes progressVisualReveal {
-  from {
-    opacity: 0.35;
-    transform: scale(0.94);
-    filter: saturate(0.25);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-    filter: saturate(1);
+.progress-color-reveal {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.progress-color-reveal::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: '';
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 0 57%, #e8eef7 58% 100%);
+  mask: conic-gradient(#000 0 var(--ring-reveal), transparent var(--ring-reveal) 100%);
+  animation: ringColorReveal 1.35s cubic-bezier(0.22, 0.7, 0.2, 1) both;
+}
+
+.progress-color-reveal > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes ringColorReveal {
+  from { --ring-reveal: 100%; }
+  to { --ring-reveal: 0%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-color-reveal::after {
+    animation: none;
+    --ring-reveal: 0%;
   }
 }
 
