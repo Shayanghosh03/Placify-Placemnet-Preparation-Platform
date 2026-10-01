@@ -1167,8 +1167,10 @@ function DailyActivityCalendar({ activityLog = [] }) {
   });
   const selectedDay = calendarDays.find((day) => day.dateKey === selectedDate) || calendarDays[calendarDays.length - 1];
   const monthLabels = calendarDays.reduce((labels, day, index) => {
-    if (day.date.getDate() === 1 || index === 0) {
-      labels.push({ label: day.date.toLocaleDateString(undefined, { month: 'short' }), index });
+    const isWeekStart = index % 7 === 0;
+    const previousMonth = index > 0 ? calendarDays[index - 1].date.getMonth() : -1;
+    if (isWeekStart && (index === 0 || day.date.getMonth() !== previousMonth)) {
+      labels.push({ label: day.date.toLocaleDateString(undefined, { month: 'short' }), week: index / 7 });
     }
     return labels;
   }, []);
@@ -1184,7 +1186,7 @@ function DailyActivityCalendar({ activityLog = [] }) {
       </div>
       <div className="activity-calendar-body">
         <div className="activity-calendar-months" aria-hidden="true">
-          {monthLabels.map(({ label, index }) => <span key={`${label}-${index}`} style={{ gridColumn: Math.floor(index / 7) + 1 }}>{label}</span>)}
+          {monthLabels.map(({ label, week }) => <span key={`${label}-${week}`} style={{ gridColumn: week + 1 }}>{label}</span>)}
         </div>
         <div className="activity-calendar-grid" role="group" aria-label="Daily activity for the last 12 weeks">
           {calendarDays.map((day) => (
