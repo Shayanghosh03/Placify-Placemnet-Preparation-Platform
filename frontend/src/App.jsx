@@ -32,11 +32,22 @@ const CATEGORY_COLORS = {
 };
 
 const DASHBOARD_CATEGORIES = ['Aptitude', 'Reasoning', 'Verbal Ability', 'DSA'];
+const CACHED_USER_KEY = 'placify-user-cache';
+
+const getCachedUser = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const cached = window.sessionStorage.getItem(CACHED_USER_KEY);
+    return cached ? JSON.parse(cached) : null;
+  } catch {
+    return null;
+  }
+};
 
 function App() {
   const [authLoading, setAuthLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(getCachedUser);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(getCachedUser()));
   const [initialDashboardTab, setInitialDashboardTab] = useState('Dashboard');
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window === 'undefined') return 'Home';
@@ -75,6 +86,11 @@ function App() {
           avatarUrl: customAvatar || data.user.avatarUrl
         };
         setUser(effectiveUser);
+        try {
+          window.sessionStorage.setItem(CACHED_USER_KEY, JSON.stringify(data.user));
+        } catch {
+          // Ignore session storage restrictions.
+        }
         if (isOAuthCallback) {
           setInitialDashboardTab('Dashboard');
           persistView('dashboard');
@@ -85,11 +101,21 @@ function App() {
       } else {
         setIsLoggedIn(false);
         setUser(null);
+        try {
+          window.sessionStorage.removeItem(CACHED_USER_KEY);
+        } catch {
+          // Ignore session storage restrictions.
+        }
         persistView('home');
       }
     } catch {
       setIsLoggedIn(false);
       setUser(null);
+      try {
+        window.sessionStorage.removeItem(CACHED_USER_KEY);
+      } catch {
+        // Ignore session storage restrictions.
+      }
       persistView('home');
     } finally {
       setAuthLoading(false);
@@ -129,6 +155,7 @@ function App() {
       setIsLoggedIn(false);
       setUser(null);
       try {
+        window.sessionStorage.removeItem(CACHED_USER_KEY);
         window.localStorage.removeItem('placify-dashboard-tab');
       } catch {
         // ignore
@@ -142,6 +169,7 @@ function App() {
     setIsLoggedIn(false);
     setUser(null);
     try {
+      window.sessionStorage.removeItem(CACHED_USER_KEY);
       window.localStorage.removeItem('placify-dashboard-tab');
     } catch {
       // ignore
@@ -176,11 +204,17 @@ function App() {
       } catch {
         // ignore
       }
-      setUser({
+      const effectiveUser = {
         ...userData,
         googleAvatar: userData.avatarUrl,
         avatarUrl: customAvatar || userData.avatarUrl
-      });
+      };
+      setUser(effectiveUser);
+      try {
+        window.sessionStorage.setItem(CACHED_USER_KEY, JSON.stringify(userData));
+      } catch {
+        // Ignore session storage restrictions.
+      }
     } else {
       await fetchUser();
     }
@@ -191,7 +225,7 @@ function App() {
 
   // Wait for the session check before mounting the dashboard. This prevents
   // the dashboard shell from mounting once with an empty user during refresh.
-  if (authLoading) {
+  if (authLoading && !isLoggedIn) {
     return null;
   }
 
